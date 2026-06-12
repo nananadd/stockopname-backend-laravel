@@ -6,10 +6,10 @@
         <h3 class="fw-bold text-primary">
             <i class="fas fa-chart-line me-2"></i>Dashboard
         </h3>
-        <p class="text-muted mb-0">PT. SIGMA BERKAT SEJATI — WAREHOUSE MANAGEMENT SYSTEM</p>
+        <p class="text-muted mb-0">PT. SIGMA BERKAT SEJATI — STOCK OPNAME SYSTEM</p>
     </div>
     <span class="text-primary fw-medium" style="font-size: 1.1rem;">
-        <i class="far fa-calendar-alt me-2"></i>{{ now()->translatedFormat('l, d F Y') }}
+        <i class="fas fa-clock text-primary me-1"></i> {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i') }} WIB
     </span>
 </div>
 

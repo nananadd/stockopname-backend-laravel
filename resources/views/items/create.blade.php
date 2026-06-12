@@ -96,7 +96,10 @@
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <button type="submit" class="btn btn-primary btn-lg swal-confirm" 
+                            data-swal-title="Simpan Data Barang?" 
+                            data-swal-text="Pastikan nama dan SKU sudah tepat." 
+                            data-swal-icon="info">
                             <i class="fas fa-save me-2"></i> Simpan Data Barang
                         </button>
                     </div>

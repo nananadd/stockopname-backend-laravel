@@ -31,10 +31,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/settings/password', [SettingController::class, 'updatePassword'])->name('settings.password');
 
     // ==========================================
-    // GRUP KHUSUS: DASHBOARD MANAGER
+    // GRUP KHUSUS: DASHBOARD MANAGER & OWNER
     // ==========================================
-    Route::middleware(['role:manager'])->group(function () {
-        Route::get('/manager/dashboard', [DashboardController::class, 'manager'])->name('manager.dashboard');
+    Route::middleware(['role:manager,owner'])->group(function () {
+        // Route::get('/manager/dashboard', [DashboardController::class, 'manager'])->name('manager.dashboard');
+        Route::get('/management/dashboard', [DashboardController::class, 'manager'])->name('management.dashboard');
     });
 
     // Master Data (Semua bisa melihat Rak & Item)
@@ -66,6 +67,7 @@ Route::middleware(['auth'])->group(function () {
         
         // Import Data & Laporan
         Route::post('/items/import', [ItemController::class, 'import'])->name('items.import');
+        Route::post('/items/sync', [ItemController::class, 'sync'])->name('items.sync');
         Route::post('cycle/{id}/review', [CycleCountWebController::class, 'review'])->name('cycle.review');
         Route::get('/cycle/{id}/export-accurate', [CycleCountWebController::class, 'exportAccurate'])->name('cycle.export.accurate');
         Route::get('cycle/{id}/pdf', [CycleCountWebController::class, 'exportPdf'])->name('cycle.pdf');

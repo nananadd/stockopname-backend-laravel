@@ -32,9 +32,9 @@ class UserController extends Controller
     // FUNGSI TAMBAH STAF BARU
     public function store(Request $request)
     {
-        // Hanya Admin, Manager, atau Owner yang diizinkan
-        if (!in_array(auth()->user()->role_id, [1, 2, 3])) {
-            abort(403, 'Akses Ditolak! Hanya Admin, Manager, atau Owner yang diizinkan.');
+        // Hanya Admin yang diizinkan
+        if (!in_array(auth()->user()->role_id, [1, 2])) {
+            abort(403, 'Akses Ditolak! Hanya Admin atau Owner yang diizinkan.');
         }
 
         $request->validate([

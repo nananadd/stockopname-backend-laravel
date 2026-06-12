@@ -33,9 +33,9 @@ class AuthController extends Controller
                 ]);
             }
 
-            // Jika manager masuk ke dashboard manager
-            if ($role === 'manager') {
-                return redirect()->route('manager.dashboard');
+            // Jika manager atau owner masuk ke dashboard analitik
+            if ($role === 'manager' || $role === 'owner') {
+                return redirect()->route('management.dashboard');
             }
 
             // Supervisor / admin / lainnya

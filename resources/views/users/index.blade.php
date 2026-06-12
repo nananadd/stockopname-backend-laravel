@@ -5,7 +5,7 @@
     <h3 class="fw-bold text-dark">
         <i class="fas fa-users text-primary me-2"></i>Manajemen Staf Gudang
     </h3>
-    @if(in_array(auth()->user()->role_id, [1, 2, 3]))
+    @if(in_array(auth()->user()->role_id, [1, 2]))
     <button type="button" class="btn btn-primary fw-medium rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addStaffModal">
         <i class="fas fa-plus-circle me-2"></i>Tambah Staf Baru
     </button>
@@ -53,15 +53,17 @@
                                     </button>
                                 </form>
 
-                                @if(in_array(auth()->user()->role_id, [1, 2, 3]))
+                                @if(in_array(auth()->user()->role_id, [1, 2]))
                                 <button type="button" title="Edit Staf" class="btn btn-sm btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#editStaffModal{{ $staff->id }}">
                                     <i class="fas fa-edit"></i>
                                 </button>
 
-                                <form action="{{ route('users.destroy', $staff->id) }}" method="POST" class="m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus staf ini? (Data riwayat opname tidak akan hilang)');">
+                                <form action="{{ route('users.destroy', $staff->id) }}" method="POST" class="m-0">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" title="Hapus Staf" class="btn btn-sm btn-outline-danger rounded-pill transition-all">
+                                    <button type="submit" title="Hapus Staf" class="btn btn-sm btn-outline-danger rounded-pill transition-all swal-confirm" 
+                                        data-swal-title="Hapus Akun Staf?" 
+                                        data-swal-text="Riwayat opname staf ini tidak akan hilang dari log aktivitas.">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
@@ -102,7 +104,13 @@
                                     </div>
                                     <div class="modal-footer bg-light">
                                         <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
-                                        <button type="submit" class="btn btn-primary rounded-pill">Simpan Perubahan</button>
+                                        
+                                        <button type="submit" class="btn btn-primary rounded-pill swal-confirm"
+                                            data-swal-title="Simpan Perubahan?"
+                                            data-swal-text="Pastikan data email dan nama staf sudah benar."
+                                            data-swal-icon="info">
+                                            Simpan Perubahan
+                                        </button>
                                     </div>
                                 </form>
                             </div>
@@ -153,7 +161,13 @@
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary rounded-pill">Simpan Staf</button>
+                    
+                    <button type="submit" class="btn btn-primary rounded-pill swal-confirm"
+                        data-swal-title="Tambah Staf Baru?"
+                        data-swal-text="Akun staf gudang baru akan dibuat di dalam sistem."
+                        data-swal-icon="info">
+                        Simpan Staf
+                    </button>
                 </div>
             </form>
         </div>

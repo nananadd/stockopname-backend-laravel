@@ -8,6 +8,8 @@ use App\Models\Item;
 use App\Models\CycleCount;
 use App\Models\CycleCountDetail;    
 use Illuminate\Http\Request;
+use App\Models\ActivityLog;
+use App\Models\User;
 use Carbon\Carbon; // buat ngambil data tanggal pada grafik
 
 class DashboardController extends Controller
@@ -19,6 +21,24 @@ class DashboardController extends Controller
     {
         $rackCount = Rack::count();
         $itemCount = Item::count();
+        $userRole = strtolower(auth()->user()->role->name ?? '');
+
+        if ($userRole === 'admin') {
+            return view('dashboard.admin', [
+                'totalUsers' => \App\Models\User::count(),
+                'totalRacks' => \App\Models\Rack::count(),
+                'totalItems' => \App\Models\Item::count(),
+                
+                // Ambil 10 log aktivitas terbaru beserta relasi user dan rolenya
+                'recentLogs' => \App\Models\ActivityLog::with(['user.role'])
+                                    ->latest()
+                                    ->take(10)
+                                    ->get(),
+                                    
+                // Cek waktu terakhir tabel items diperbarui
+                'lastSync'   => \App\Models\Item::latest('updated_at')->first()?->updated_at?->translatedFormat('d F Y, H:i') . ' WIB'
+            ]);
+        }
         
         // Hitung laporan berdasarkan status
         $pendingReviewCount = CycleCount::where('status', '!=', 'approved')->count();
@@ -41,7 +61,7 @@ class DashboardController extends Controller
     }
 
     // ========================================================
-    // 2. DASHBOARD MANAJER (Fokus ke Analitik & Grafik)
+    // 2. DASHBOARD MANAJER & OWNER (Fokus ke Analitik & Grafik)
     // ========================================================
     public function manager(Request $request)
     {
@@ -99,5 +119,25 @@ class DashboardController extends Controller
             'varianceSesuai',
             'varianceSelisih'
         ));
+    }
+
+    public function admin()
+    {
+        $data = [
+            'totalUsers' => User::count(),
+            'totalRacks' => Rack::count(),
+            'totalItems' => Item::count(),
+            
+            // Mengambil 10 log aktivitas terbaru beserta relasi user dan rolenya
+            'recentLogs' => ActivityLog::with(['user.role'])
+                                ->latest()
+                                ->take(10)
+                                ->get(),
+                                
+            // Mengambil sampel kapan trakhir tabel items diperbarui
+            'lastSync'   => Item::latest('updated_at')->first()?->updated_at?->translatedFormat('d F Y, H:i') . ' WIB'
+        ];
+
+        return view('dashboard.admin', $data);
     }
 }

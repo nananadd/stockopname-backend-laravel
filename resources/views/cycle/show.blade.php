@@ -8,13 +8,13 @@
         </h3>
         <p class="text-muted mb-0">PT. SIGMA BERKAT SEJATI — WAREHOUSE MANAGEMENT SYSTEM</p>
     </div>
-    <a href="{{ route('cycle.index') }}" class="btn btn-secondary">
+    <a href="{{ route('cycle.index') }}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-1"></i> Kembali
     </a>
 </div>
 
 <div class="row mb-5">
-    <div class="col-md-8">
+    <div class="col-12"> 
         <div class="card h-100 border-0 shadow-sm">
             <div class="card-header">
                 <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-info-circle me-2"></i>Informasi Sesi</h5>
@@ -54,10 +54,14 @@
                 <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-box me-2"></i>Hasil Perbandingan Stok</h5>
             </div>
             <div class="d-flex justify-content-end mb-3">
-                <form action="{{ route('cycle.sync', $cycle->id) }}" method="POST" onsubmit="return confirm('Sistem akan mengecek apakah ada barang baru di rak ini. Lanjutkan?');">
+                <form action="{{ route('cycle.sync', $cycle->id) }}" method="POST">
                     @csrf
                     @if(in_array($cycle->status, ['draft', 'submitted', 'reviewed', 'approved','recount']))
-                        <button type="submit" class="btn btn-warning shadow-sm fw-bold">
+                        <button type="submit" class="btn btn-warning shadow-sm fw-bold swal-confirm"
+                            data-swal-title="Sinkronkan Barang Baru?"
+                            data-swal-text="Sistem akan mengecek apakah ada tambahan item/SKU baru di rak ini."
+                            data-swal-icon="info"
+                            data-swal-confirm="Ya, Sinkronkan!">
                             <i class="fas fa-sync-alt me-2"></i> Sinkronkan Barang Baru
                         </button>
                     @endif
@@ -117,80 +121,127 @@
                         </tfoot>
                         @endif
                     </table>
-                    <div class="card mt-4">
-                        <div class="card-body">
-                            <h5>Otorisasi & Aksi</h5>
-                            <div class="d-flex flex-column gap-3 mt-3">
+                    <div class="card mt-4 border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-shield-alt text-primary me-2"></i>Otorisasi & Tindakan</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            @php
+                                // Buat variabel bantuan agar pengecekan di bawah lebih rapi
+                                $roleId = auth()->user()->role_id;
+                                $isAdminOrOwner = in_array($roleId, [1, 2]); // Role 1 (Admin), 2 (Owner)
+                                $isManager = $roleId == 3;
+                                $isSupervisor = $roleId == 4;
+                            @endphp
 
-                                @if(auth()->user()->role_id == 4)
-                                    @if($cycle->status != 'approved')
-                                        <form action="{{ route('cycle.recount', $cycle->id) }}" method="POST">
-                                            @csrf
-                                            <div class="mb-3">
-                                                <label>Catatan untuk Staf (Opsional):</label>
-                                                <textarea name="notes" class="form-control" placeholder="Contoh: Tolong cek ulang laci nomor 3..."></textarea>
+                            @if(in_array($cycle->status, ['draft', 'submitted', 'recount']))
+                                
+                                @if($isSupervisor || $isAdminOrOwner)
+                                    <div class="row g-4">
+                                        <div class="col-md-6">
+                                            <div class="p-3 rounded border border-warning bg-light h-100 d-flex flex-column">
+                                                <h6 class="fw-bold text-warning mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Ada Kesalahan Hitung?</h6>
+                                                <form action="{{ route('cycle.recount', $cycle->id) }}" method="POST" class="flex-grow-1 d-flex flex-column">
+                                                    @csrf
+                                                    <textarea name="notes" class="form-control mb-3 flex-grow-1" rows="2" placeholder="Tulis instruksi hitung ulang untuk staf..."></textarea>
+                                                    <button type="submit" class="btn btn-warning w-100 fw-bold shadow-sm swal-confirm"
+                                                        data-swal-title="Minta Hitung Ulang?"
+                                                        data-swal-text="Dokumen ini akan dikembalikan ke Staf."
+                                                        data-swal-icon="warning">
+                                                        <i class="bi bi-arrow-repeat me-2"></i> Kembalikan ke Staf (Recount)
+                                                    </button>
+                                                </form>
                                             </div>
-                                            <button type="submit" class="btn btn-warning">
-                                                <i class="bi bi-arrow-repeat"></i> Minta Hitung Ulang
-                                            </button>
-                                        </form>
-
-                                        <hr class="text-muted"> 
-
-                                        <div>
-                                            <form action="{{ route('cycle.approve', $cycle->id) }}" method="POST">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success px-4 py-2 shadow-sm">
-                                                    <i class="fas fa-check-circle me-2"></i> Setujui Hasil Hitungan
-                                                </button>
-                                            </form>
                                         </div>
-                                    @else
-                                        <div>
-                                            <button class="btn btn-secondary" disabled>
-                                                <i class="fas fa-lock me-2"></i> Laporan Telah Disetujui (Menunggu Review Manajer)
-                                            </button>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="p-3 rounded border border-success h-100 d-flex flex-column justify-content-center text-center" style="background-color: #f0fdf4;">
+                                                <h6 class="fw-bold text-success mb-3">Semua Data Sudah Valid?</h6>
+                                                <p class="text-muted small mb-4">Menyetujui dokumen ini akan mengubah master stok di database utama menggunakan data snapshot.</p>
+                                                <form action="{{ route('cycle.approve', $cycle->id) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success btn-lg w-100 shadow fw-bold swal-confirm"
+                                                        data-swal-title="Setujui & Update Stok?"
+                                                        data-swal-text="Data fisik akan menimpa stok sistem."
+                                                        data-swal-icon="info">
+                                                        <i class="fas fa-check-circle me-2"></i> Setujui & Update Stok
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
-                                    @endif
+                                    </div>
+                                @elseif($isManager)
+                                    <div class="alert alert-info mb-0 d-flex align-items-center p-3">
+                                        <i class="fas fa-hourglass-half fa-2x me-3"></i>
+                                        <div>
+                                            <h6 class="fw-bold mb-0">Dalam Proses Operasional</h6>
+                                            <span class="small">Laporan ini masih dihitung oleh Staf Gudang atau sedang menunggu persetujuan Supervisor.</span>
+                                        </div>
+                                    </div>
                                 @endif
 
-
-                                @if(auth()->user()->role_id == 3)
-                                    @if($cycle->status == 'approved' && is_null($cycle->reviewed_by))
-                                        <div class="alert alert-warning mb-2">
-                                            <i class="fas fa-exclamation-triangle me-2"></i> Laporan ini telah disetujui Supervisor. Silakan lakukan validasi akhir.
+                            @elseif($cycle->status == 'approved' && is_null($cycle->reviewed_by))
+                                
+                                @if($isManager || $isAdminOrOwner)
+                                    <div class="alert border-primary bg-light d-flex justify-content-between align-items-center mb-0 p-4">
+                                        <div>
+                                            <h6 class="fw-bold text-primary mb-1"><i class="fas fa-clipboard-check me-2"></i>Validasi Akhir Dibutuhkan</h6>
+                                            <p class="text-muted mb-0 small">Laporan ini telah disetujui Supervisor dan siap diarsipkan atau diekspor.</p>
                                         </div>
-                                        <form action="{{ route('cycle.review', $cycle->id) }}" method="POST">
+                                        <form action="{{ route('cycle.review', $cycle->id) }}" method="POST" class="m-0">
                                             @csrf
-                                            <button type="submit" class="btn btn-primary px-4 py-2 shadow-sm">
-                                                <i class="fas fa-user-check me-2"></i> Tandai Telah Direview
+                                            <button type="submit" class="btn btn-primary px-4 py-2 shadow-sm fw-bold swal-confirm"
+                                                data-swal-title="Tandai Selesai?"
+                                                data-swal-text="Laporan akan disahkan secara penuh."
+                                                data-swal-icon="info">
+                                                <i class="fas fa-stamp me-2"></i> Tandai Telah Direview
                                             </button>
                                         </form>
-                                    
-                                    @elseif(!is_null($cycle->reviewed_by))
+                                    </div>
+                                @elseif($isSupervisor)
+                                    <div class="alert alert-secondary mb-0 d-flex align-items-center">
+                                        <i class="fas fa-lock fa-2x me-3 text-muted"></i>
                                         <div>
-                                            <button class="btn btn-secondary mb-3" disabled>
-                                                <i class="fas fa-check-double me-2"></i> Laporan Telah Direview
-                                            </button>
+                                            <h6 class="fw-bold mb-1">Tugas Selesai</h6>
+                                            <span class="mb-0">Laporan ini telah Anda setujui dan stok telah diperbarui. Menunggu peninjauan akhir dari Manajer.</span>
                                         </div>
-                                        <div class="dropdown">
-                                            <button class="btn btn-dark dropdown-toggle px-4 py-2" type="button" data-bs-toggle="dropdown">
-                                                <i class="fas fa-download me-2"></i> Export Data Penyesuaian
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li><a class="dropdown-item" href="{{ route('cycle.pdf', $cycle->id) }}">Download Laporan PDF</a></li>
-                                                <li><a class="dropdown-item" href="{{ route('cycle.export.excel', $cycle->id) }}">Download Laporan Excel</a></li>
-                                                <li><a class="dropdown-item" href="{{ route('cycle.export.accurate', $cycle->id) }}">Download Excel Accurate Online</a></li>
-                                            </ul>
-                                        </div>
-                                    
-                                    @else
-                                        <div class="alert alert-info mb-0">
-                                            <i class="fas fa-info-circle me-2"></i> Laporan masih dalam proses perhitungan atau menunggu persetujuan Supervisor.
-                                        </div>
-                                    @endif
+                                    </div>
                                 @endif
-                            </div>
+
+                            @elseif(!is_null($cycle->reviewed_by))
+                                <div class="alert alert-success mb-0 d-flex align-items-center p-3">
+                                    <i class="fas fa-check-double fa-2x me-3"></i>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">Laporan Selesai & Tervalidasi</h6>
+                                        <span class="small">Seluruh proses operasional pada rak ini telah tuntas.</span>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if(($isManager || $isAdminOrOwner) && in_array($cycle->status, ['approved', 'reviewed']))
+                                <hr class="text-muted my-4">
+                                <h6 class="fw-bold text-dark mb-3"><i class="fas fa-cloud-download-alt text-primary me-2"></i>Unduh Berkas Laporan</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <a href="{{ route('cycle.pdf', $cycle->id) }}" class="btn btn-outline-danger w-100 p-3 shadow-sm d-flex flex-column align-items-center justify-content-center h-100 transition-all">
+                                            <i class="fas fa-file-pdf fa-2x mb-2"></i>
+                                            <span class="fw-bold">Laporan PDF</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="{{ route('cycle.export.excel', $cycle->id) }}" class="btn btn-outline-success w-100 p-3 shadow-sm d-flex flex-column align-items-center justify-content-center h-100 transition-all">
+                                            <i class="fas fa-file-excel fa-2x mb-2"></i>
+                                            <span class="fw-bold">Laporan Excel</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="{{ route('cycle.export.accurate', $cycle->id) }}" class="btn btn-outline-sigma w-100 p-3 shadow-sm d-flex flex-column align-items-center justify-content-center h-100 transition-all">
+                                            <i class="fas fa-file-csv fa-2x mb-2"></i>
+                                            <span class="fw-bold">Data Accurate Online</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -204,3 +255,17 @@
     <p class="small text-muted mb-0">Aplikasi Stock Opname Terintegrasi</p>
 </footer> -->
 @endsection
+
+<style>
+    /* CSS Khusus untuk tombol Outline Sigma */
+    .btn-outline-sigma {
+        color: var(--sigma-magenta) !important;
+        border: 1px solid var(--sigma-magenta) !important;
+        background-color: transparent !important;
+    }
+    .btn-outline-sigma:hover {
+        color: #ffffff !important;
+        background-color: var(--sigma-magenta) !important;
+        border-color: var(--sigma-magenta) !important;
+    }
+</style>

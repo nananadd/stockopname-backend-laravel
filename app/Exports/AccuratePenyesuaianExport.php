@@ -36,10 +36,12 @@ class AccuratePenyesuaianExport implements FromCollection, WithHeadings, WithMap
         // Sehingga, data mapping otomatis akan tertulis mulai di BARIS KE-7!
         return [
             [
-                '', '', 'Kode Barang', '', 'Nama Barang', '', '', 'Kuantitas', '', 'Satuan', '', 'Hitung #1', '', 'Hitung #2', ''
+                '', '', 'Kode Barang', '', 'Nama Barang', '', '', 'Kuantitas', '', 'Satuan', '', 'Hitung #1', ''
+                // , 'Hitung #2', ''
             ],
             [
-                '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''
+                '', '', '', '', '', '', '', '', '', '', '', '', ''
+                // , '', ''
             ]
         ];
     }
@@ -60,9 +62,9 @@ class AccuratePenyesuaianExport implements FromCollection, WithHeadings, WithMap
             $detail->item->unit ?? '-', // J: Satuan
             '', // K
             $detail->physical_stock, // L: Hitung #1 (Angka dari WMS masuk ke sini)
-            '', // M
-            '', // N: Hitung #2
-            ''  // O
+            // '', // M
+            // '', // N: Hitung #2
+            // ''  // O
         ];
     }
 }

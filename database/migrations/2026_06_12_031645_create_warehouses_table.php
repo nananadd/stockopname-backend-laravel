@@ -9,10 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up()
+    public function up(): void
     {
-        Schema::table('racks', function (Blueprint $table) {
-            $table->timestamp('last_counted_at')->nullable()->after('qr_code');
+        Schema::create('warehouses', function (Blueprint $table) {
+            $table->id();
+            $table->string('name', 100);
+            $table->string('code', 20);
+            $table->timestamp('created_at')->nullable();
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('racks', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('warehouses');
     }
 };

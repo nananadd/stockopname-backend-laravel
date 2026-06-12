@@ -1,8 +1,9 @@
 @php
-$role = auth()->user()->role->name ?? '';
-$dashboardRoute = $role === 'manager'
-    ? route('manager.dashboard')
-    : route('dashboard');
+    $userRole = strtolower(auth()->user()->role->name ?? '');
+    
+    $dashboardLink = ($userRole === 'manager' || $userRole === 'owner')
+        ? route('management.dashboard')
+        : route('dashboard');
 @endphp
 
 <!DOCTYPE html>
@@ -72,10 +73,12 @@ $dashboardRoute = $role === 'manager'
         /* --- SIDEBAR STYLING --- */
         .sidebar {
             width: 280px;
-            height: 100vh;          /* Tinggi full 1 layar */
-            position: sticky;       /* Agar diam tidak ikut discroll */
-            top: 0;                 /* Nempel di atas */
-            overflow-y: auto;       /* Jika isi menu panjang, hanya area menu yang bisa di scroll */
+            min-width: 280px; /* Mencegah ukuran mengecil dari 280px */
+            flex-shrink: 0;   /* Mengunci elemen agar tidak tergencet oleh Flexbox */
+            height: 100vh;          
+            position: sticky;       
+            top: 0;                 
+            overflow-y: auto;       
             background-color: var(--sigma-black);
             transition: all 0.3s;
         }
@@ -108,6 +111,111 @@ $dashboardRoute = $role === 'manager'
             flex-grow: 1;
             min-height: 100vh;
         }
+
+        .logout-btn {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .logout-btn:hover {
+            background-color: #dc3545 !important; /* Warna Merah Danger */
+            color: #ffffff !important;
+        }
+
+        .logout-btn:hover i {
+            color: #ffffff !important;
+        }
+
+        .settings-hover {
+            transition: all 0.2s ease-in-out;
+            color: #333333;
+        }
+
+        .settings-hover:hover {
+            /* Latar belakang menjadi pink transparan sangat halus */
+            background-color: rgba(243, 26, 107, 0.08) !important; 
+            color: var(--sigma-magenta) !important;
+        }
+        
+        .settings-hover:hover .setting-icon {
+            /* Ikon ikut berubah menjadi warna Magenta Sigma */
+            color: var(--sigma-magenta) !important;
+        }
+
+        .settings-hover:hover .setting-icon {
+            /* Ikon ikut berubah menjadi warna Magenta Sigma */
+            color: var(--sigma-magenta) !important;
+        }
+
+        [data-bs-theme="dark"] body {
+            --ambient-bg: #121212;
+            --ambient-card-header: #1e1e1e;
+            color: #e0e0e0;
+        }
+        [data-bs-theme="dark"] .bg-white { background-color: #1e1e1e !important; }
+        [data-bs-theme="dark"] .bg-light { background-color: #2d2d2d !important; }
+        [data-bs-theme="dark"] .card { background-color: #1e1e1e; border: 1px solid #333 !important; }
+        [data-bs-theme="dark"] .text-dark { color: #f8f9fa !important; }
+        [data-bs-theme="dark"] .text-muted { color: #adb5bd !important; }
+        [data-bs-theme="dark"] .border-bottom { border-color: #333 !important; }
+        [data-bs-theme="dark"] .table { color: #e0e0e0; border-color: #444; }
+
+        [data-bs-theme="dark"] .table-light, 
+        [data-bs-theme="dark"] .table-light th, 
+        [data-bs-theme="dark"] .table-light td {
+            background-color: #2a2a2a !important;
+            color: #f8f9fa !important;
+            border-color: #444 !important;
+        }
+
+        /* Memastikan seluruh garis antar baris tabel ikut gelap */
+        [data-bs-theme="dark"] th, 
+        [data-bs-theme="dark"] td {
+            border-color: #444 !important;
+        }
+
+        /* Memperbaiki warna kotak pencarian (Search/Input) di atas tabel */
+        [data-bs-theme="dark"] .form-control,
+        [data-bs-theme="dark"] .form-select {
+            background-color: #2d2d2d !important;
+            border-color: #444 !important;
+            color: #f8f9fa !important;
+        }
+        [data-bs-theme="dark"] .form-control:focus,
+        [data-bs-theme="dark"] .form-select:focus {
+            background-color: #1e1e1e !important;
+            color: #f8f9fa !important;
+        }
+
+        /* Memperbaiki navigasi halaman (Pagination) di bawah tabel jika ada */
+        [data-bs-theme="dark"] .pagination .page-link {
+            background-color: #1e1e1e;
+            border-color: #444;
+            color: var(--sigma-magenta);
+        }
+        [data-bs-theme="dark"] .pagination .page-item.active .page-link {
+            background-color: var(--sigma-magenta);
+            border-color: var(--sigma-magenta);
+            color: white;
+        }
+        [data-bs-theme="dark"] .pagination .page-link:hover {
+            background-color: #2d2d2d;
+        }
+
+        [data-bs-theme="dark"] .dropdown-menu {
+            background-color: #1e1e1e !important;
+            border-color: #444 !important;
+        }
+        
+        /* Memaksa teks 'Profil & Pengaturan' dan menu lainnya menjadi putih */
+        [data-bs-theme="dark"] .dropdown-item,
+        [data-bs-theme="dark"] .settings-hover {
+            color: #f8f9fa !important; 
+        }
+
+        /* Memaksa ikon gir menjadi abu-abu terang agar kelihatan */
+        [data-bs-theme="dark"] .settings-hover .setting-icon {
+            color: #adb5bd !important;
+        }
     </style>
 </head>
 <body>
@@ -116,7 +224,7 @@ $dashboardRoute = $role === 'manager'
         
         <!-- Sidebar -->
         <div class="sidebar d-flex flex-column p-3 text-white border-end border-sigma-magenta">
-            <a href="{{ $dashboardRoute }}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none w-100 pb-3 border-bottom border-secondary">
+            <a href="{{ $dashboardLink }}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none w-100 pb-3 border-bottom border-secondary">
                 <img src="{{ asset('images/LogoSigmaWhite520x129.webp') }}" 
                     alt="Sigma Logo"
                     class="me-3"
@@ -125,7 +233,7 @@ $dashboardRoute = $role === 'manager'
             
             <ul class="nav nav-pills flex-column mb-auto mt-4">
                 <li class="nav-item">
-                    <a href="{{ $dashboardRoute }}" class="nav-link {{ request()->routeIs('dashboard') || request()->routeIs('manager.dashboard') ? 'active' : '' }}">
+                    <a href="{{ $dashboardLink }}" class="nav-link {{ request()->routeIs('dashboard') || request()->routeIs('management.dashboard') ? 'active' : '' }}">
                         <i class="fas fa-home me-2 fa-fw"></i> Dashboard
                     </a>
                 </li>
@@ -151,28 +259,46 @@ $dashboardRoute = $role === 'manager'
                     </a>
                 </li>
                 @endif
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('settings.index') ? 'active fw-bold' : '' }}" href="{{ route('settings.index') }}">
-                        <i class="fas fa-cog me-2 text-secondary"></i>
-                        <span>Pengaturan Akun</span>
-                    </a>
-                </li>
             </ul>
             
             <hr class="border-secondary">
             
             <!-- User Menu / Logout -->
-            <div class="dropdown">
-                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user-circle me-2 fs-4"></i>
-                    <strong>{{ auth()->user()->name ?? 'User' }}</strong>
+            <div class="dropdown mt-3">
+                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle px-2 py-2 rounded transition-all border border-secondary border-opacity-25" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: rgba(255,255,255,0.03);">
+                    
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 38px; height: 38px; background-color: var(--sigma-magenta);">
+                        <span class="fw-bold text-white fs-5">{{ substr(auth()->user()->name ?? 'U', 0, 1) }}</span>
+                    </div>
+                    
+                    <div class="d-flex flex-column me-3">
+                        <strong class="text-white lh-1 mb-1 text-truncate" style="max-width: 130px;">{{ auth()->user()->name ?? 'User' }}</strong>
+                        <span class="text-white-50" style="font-size: 0.75rem;">{{ ucfirst(auth()->user()->role->name ?? 'Staff') }}</span>
+                    </div>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser">
-                    <li>
+                
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2" aria-labelledby="dropdownUser" style="min-width: 250px;">
+                    
+                    <li class="px-4 py-3 border-bottom mb-2 bg-light rounded-top">
+                        <div class="fw-bold text-dark text-truncate">{{ auth()->user()->name ?? 'User' }}</div>
+                        <div class="text-muted small text-truncate">{{ auth()->user()->email ?? 'user@sigmaberkat.com' }}</div>
+                    </li>
+                    
+                        <li>
+                        <a class="dropdown-item py-2 d-flex align-items-center fw-medium settings-hover" href="{{ route('settings.index') }}">
+                            <i class="fas fa-user-cog me-3 setting-icon" style="color: #6c757d;"></i> Profil & Pengaturan
+                        </a>
+                    </li>
+                    
+                    <li><hr class="dropdown-divider my-2"></li>
+                    
+                    <li class="px-2 pb-2">
                         <form action="{{ route('logout') }}" method="POST" class="m-0">
                             @csrf
-                            <button type="submit" class="dropdown-item text-danger fw-bold">
-                                <i class="fas fa-sign-out-alt me-2"></i> Logout
+                            <button type="submit" class="dropdown-item text-danger fw-bold rounded d-flex align-items-center py-2 swal-confirm logout-btn" 
+                                data-swal-title="Keluar Sistem?" 
+                                data-swal-text="Sesi kerja Anda akan diakhiri.">
+                                <i class="fas fa-sign-out-alt me-3"></i> Logout
                             </button>
                         </form>
                     </li>
@@ -183,13 +309,6 @@ $dashboardRoute = $role === 'manager'
         <!-- Main Content Area -->
         <div class="main-content">
             <div class="container-fluid p-4 p-md-5">
-                
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-                        <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
 
                 <!-- Yield Content -->
                 @yield('content')
@@ -200,5 +319,89 @@ $dashboardRoute = $role === 'manager'
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // 1. Menangkap event 'submit' pada form, bukan sekadar 'click' pada tombol
+        document.addEventListener('submit', function (e) {
+            let btn = e.submitter; // Mendeteksi tombol mana yang memicu submit
+            
+            if (btn && btn.classList.contains('swal-confirm')) {
+                e.preventDefault(); // Tahan pengiriman data sementara
+                
+                let title = btn.getAttribute('data-swal-title') || 'Apakah Anda yakin?';
+                let text = btn.getAttribute('data-swal-text') || 'Data ini akan diproses.';
+                let icon = btn.getAttribute('data-swal-icon') || 'warning';
+                let confirmText = btn.getAttribute('data-swal-confirm') || 'Ya, Lanjutkan!';
+
+                Swal.fire({
+                    title: title,
+                    text: text,
+                    icon: icon,
+                    showCancelButton: true,
+                    confirmButtonColor: '#f31a6b', // Warna Pink Sigma
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: confirmText,
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        e.target.submit(); // Lanjutkan pengiriman ke server jika "Ya" diklik
+                    }
+                });
+            }
+        });
+
+        // 2. Alert Sukses / Error bawaan Controller Laravel
+        @if(session('success'))
+            Swal.fire({ icon: 'success', title: 'Berhasil!', text: '{!! session('success') !!}', timer: 2000, showConfirmButton: false });
+        @endif
+
+        @if(session('error'))
+            Swal.fire({ icon: 'error', title: 'Oops...', text: '{!! session('error') !!}' });
+        @endif
+
+        // 3. Penangkap Error Validasi dari Form
+        // Jika email kembar atau form tidak valid, SweetAlert akan memberi tahu alasannya
+        @if($errors->any())
+            Swal.fire({
+                icon: 'error',
+                title: 'Validasi Gagal!',
+                html: '{!! implode("<br>", $errors->all()) !!}'
+            });
+        @endif
+    </script>
+
+    <script>
+        // 1. Cek memori browser langsung saat halaman dimuat
+        if (localStorage.getItem('sigma_theme') === 'dark') {
+            document.documentElement.setAttribute('data-bs-theme', 'dark');
+        }
+
+        // 2. Fungsi untuk mengontrol tombol toggle di halaman Pengaturan
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkToggle = document.getElementById('darkModeToggle');
+            
+            if (darkToggle) {
+                if(localStorage.getItem('sigma_theme') === 'dark') {
+                    darkToggle.checked = true;
+                }
+
+                darkToggle.addEventListener('change', function() {
+                    if(this.checked) {
+                        document.documentElement.setAttribute('data-bs-theme', 'dark');
+                        localStorage.setItem('sigma_theme', 'dark');
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Mode Gelap Aktif', showConfirmButton: false, timer: 1500 });
+                    } else {
+                        document.documentElement.setAttribute('data-bs-theme', 'light');
+                        localStorage.setItem('sigma_theme', 'light');
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Mode Terang Aktif', showConfirmButton: false, timer: 1500 });
+                    }
+                });
+            }
+        });
+    </script>
+
 </body>
 </html>

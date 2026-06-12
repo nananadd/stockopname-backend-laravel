@@ -13,8 +13,10 @@
 
         <form action="{{ route('cycle.generate-auto') }}" method="POST" class="m-0">
             @csrf
-            <button type="submit" class="btn btn-primary"
-                onclick="return confirm('Jalankan generator jadwal otomatis untuk hari ini?')">
+            <button type="submit" class="btn btn-primary swal-confirm" 
+                data-swal-title="Buat Jadwal Otomatis?" 
+                data-swal-text="Sistem akan otomatis mengatur jadwal hitung hari ini." 
+                data-swal-icon="info">
                 <i class="bi bi-robot"></i> Buat Jadwal Otomatis
             </button>
         </form>
@@ -84,11 +86,12 @@
                             </a>
                             @if($cycle->status != 'approved' && $cycle->status != 'reviewed')
                             <form action="{{ route('cycle.destroy', $cycle->id) }}" method="POST" 
-                                onsubmit="return confirm('Yakin ingin menghapus jadwal ini? Status rak akan otomatis terbuka kembali.')" 
                                 class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <button type="submit" class="btn btn-sm btn-outline-danger swal-confirm" 
+                                    data-swal-title="Hapus Jadwal?" 
+                                    data-swal-text="Status kunci (gembok) rak akan otomatis terbuka kembali.">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>

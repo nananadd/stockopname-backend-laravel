@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('item_rack', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('item_id')->constrained()->onDelete('cascade');
-            $table->foreignId('rack_id')->constrained()->onDelete('cascade');
-            $table->integer('stock_at_location')->default(0); // Opsional: jika ingin melacak stok per rak
-            $table->timestamps();
+            $table->foreignId('item_id')->constrained('items')->onDelete('cascade');
+            $table->foreignId('rack_id')->constrained('racks')->onDelete('cascade');
+            $table->integer('stock_at_location');
+            $table->timestamp('created_at')->nullable();
+            $table->timestamp('updated_at')->nullable();
         });
     }
 

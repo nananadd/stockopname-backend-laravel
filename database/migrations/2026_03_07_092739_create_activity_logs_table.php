@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('action'); // Contoh: 'approve_cycle_count', 'change_location'
+            $table->string('action');
             $table->text('description');
             $table->timestamps();
         });

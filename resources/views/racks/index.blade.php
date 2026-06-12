@@ -40,7 +40,7 @@
                 <thead class="table-light">
                     <tr>
                         <th class="ps-4">Kode Rak</th>
-                        <th>QR Code</th>
+                        <th>Visual QR Code</th>
                         <th>Status Hitung</th>
                         <th class="text-center">Aksi</th>
                     </tr>
@@ -49,7 +49,15 @@
                     @forelse($racks as $rack)
                     <tr>
                         <td class="ps-4 fw-bold text-dark">{{ $rack->code }}</td>
-                        <td class="text-secondary fw-medium"><i class="fas fa-qrcode me-2"></i>{{ $rack->qr_code }}</td>
+                        
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-white p-1 border rounded shadow-sm me-3">
+                                    {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(50)->generate($rack->qr_code) !!}
+                                </div>
+                                <span class="text-secondary fw-medium">{{ $rack->qr_code }}</span>
+                            </div>
+                        </td>
                         <td>
                             @if($rack->is_locked)
                                 <span class="badge bg-danger"><i class="fas fa-lock me-1"></i> Sedang Dihitung</span>
@@ -58,13 +66,20 @@
                             @endif
                         </td>
                         <td class="text-center">
-                            <a href="{{ route('racks.edit', $rack->id) }}" class="btn btn-sm btn-outline-secondary me-1">
+                            <a href="{{ route('racks.show', $rack->id) }}" class="btn btn-sm btn-outline-info me-1" title="Lihat & Cetak Label QR">
+                                <i class="fas fa-print"></i>
+                            </a>
+
+                            <a href="{{ route('racks.edit', $rack->id) }}" class="btn btn-sm btn-outline-secondary me-1" title="Edit Data">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <form action="{{ route('racks.destroy', $rack->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus rak ini? Menghapus rak akan melepaskan semua barang di dalamnya.');">
+                            <form action="{{ route('racks.destroy', $rack->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <button type="submit" class="btn btn-sm btn-outline-danger swal-confirm" 
+                                    data-swal-title="Hapus Rak?" 
+                                    data-swal-text="Menghapus rak ini akan melepaskan semua barang di dalamnya!" 
+                                    data-swal-confirm="Ya, Hapus Rak">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>

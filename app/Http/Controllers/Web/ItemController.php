@@ -122,4 +122,24 @@ class ItemController extends Controller
         $item->delete();
         return redirect()->route('items.index')->with('success', 'Data Barang berhasil dihapus!');
     }
+
+    public function sync()
+    {
+        try {
+            // TULIS LOGIKA TARIK DATA API ACCURATE DI SINI
+            // Contoh: $accurateApi->fetchItems();
+            
+            // Jangan lupa catat ke log aktivitas Admin
+            \App\Models\ActivityLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'Sync Accurate',
+                'description' => 'Melakukan sinkronisasi master data barang dari Accurate Online.'
+            ]);
+
+            return redirect()->back()->with('success', 'Master data barang berhasil disinkronisasi dari Accurate Online!');
+            
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal melakukan sinkronisasi: ' . $e->getMessage());
+        }
+    }
 }

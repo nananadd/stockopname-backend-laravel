@@ -64,7 +64,10 @@
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <button type="submit" class="btn btn-primary btn-lg swal-confirm" 
+                            data-swal-title="Simpan Data Rak?" 
+                            data-swal-text="Pastikan data rak sudah benar." 
+                            data-swal-icon="info">
                             <i class="fas fa-save me-2"></i> Simpan Data Rak
                         </button>
                     </div>

@@ -120,8 +120,11 @@
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-save me-2"></i> Simpan Data Barang
+                        <button type="submit" class="btn btn-primary btn-lg swal-confirm" 
+                            data-swal-title="Perbarui Data Barang?" 
+                            data-swal-text="Pastikan nama dan SKU sudah tepat." 
+                            data-swal-icon="info">
+                            <i class="fas fa-save me-2"></i>Perbarui Data Barang
                         </button>
                     </div>
                 </form>

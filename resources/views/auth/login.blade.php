@@ -130,8 +130,13 @@
                             <div class="mb-5">
                                 <label for="password" class="form-label fw-semibold text-secondary small text-uppercase">Kata Sandi</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                    <input type="password" name="password" class="form-control" id="password" required placeholder="Masukkan kata sandi">
+                                    <span class="input-group-text"><i class="fas fa-lock text-muted"></i></span>
+                                    
+                                    <input type="password" name="password" class="form-control border-end-0" id="password" required placeholder="Masukkan kata sandi">
+                                    
+                                    <span class="input-group-text bg-white toggle-password" data-target="password" style="cursor: pointer;" title="Tampilkan/Sembunyikan Sandi">
+                                        <i class="fas fa-eye text-muted"></i>
+                                    </span>
                                 </div>
                             </div>
                             
@@ -149,5 +154,29 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.querySelector('.toggle-password');
+            
+            if (togglePassword) {
+                togglePassword.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const inputField = document.getElementById(targetId);
+                    const icon = this.querySelector('i');
+
+                    if (inputField.type === 'password') {
+                        inputField.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash'); // Mata dicoret
+                    } else {
+                        inputField.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye'); // Mata terbuka
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -48,14 +48,6 @@ class CycleCountWebController extends Controller
 
         return view('cycle.show', compact('cycle'));
     }
-    
-    // public function create()
-    // {
-    //     // Hanya panggil rak yang SEDANG TIDAK TERKUNCI dan urutkan sesuai abjad
-    //     $racks = \App\Models\Rack::where('is_locked', 0)->orderBy('code', 'asc')->get();
-        
-    //     return view('cycle.create', compact('racks'));
-    // }
 
     public function createSchedule()
     {
@@ -67,30 +59,6 @@ class CycleCountWebController extends Controller
 
         return view('cycle.schedule', compact('racks', 'staffs'));
     }
-
-    // public function store(Request $request)
-    // {
-    //     $request->validate([
-    //         'rack_id' => 'required|exists:racks,id'
-    //     ]);
-
-    //     $rack = Rack::findOrFail($request->rack_id);
-
-    //     // buat cycle
-    //     $cycle = CycleCount::create([
-    //         'rack_id' => $rack->id,
-    //         'status' => 'draft',
-    //         'started_at' => now(),
-    //         'counted_by' => 1 // sementara hardcode dulu buat testing
-    //     ]);
-
-    //     // lock rack
-    //     $rack->update([
-    //         'is_locked' => true
-    //     ]);
-
-    //     return redirect()->route('cycle.show', $cycle->id);
-    // }
 
         public function storeSchedule(Request $request)
     {

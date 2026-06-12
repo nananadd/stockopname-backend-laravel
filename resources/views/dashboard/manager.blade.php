@@ -4,10 +4,15 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h3 class="fw-bold text-dark">
-            <i class="fas fa-chart-line text-primary me-2"></i>Dashboard Evaluasi Manajer
+            <i class="fas fa-chart-line text-primary me-2"></i>Dashboard Evaluasi Eksekutif
         </h3>
         <p class="text-muted">Ringkasan analitik Cycle Counting & Pergerakan Gudang</p>
     </div>
+        <div>
+            <span class="text-primary fw-medium" style="font-size: 1.1rem;">
+                <i class="fas fa-clock text-primary me-1"></i> {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i') }} WIB
+            </span>
+        </div>
 </div>
 
 <div class="row g-4 mb-4">

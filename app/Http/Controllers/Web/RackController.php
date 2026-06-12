@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Rack;
 use Illuminate\Http\Request;
 use App\Models\Warehouse;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class RackController extends Controller
 {
@@ -78,5 +79,13 @@ class RackController extends Controller
     {
         $rack->delete();
         return redirect()->route('racks.index')->with('success', 'Data Rak berhasil dihapus!');
+    }
+
+    public function show($id)
+    {
+        $rack = Rack::findOrFail($id);
+        
+        // Melempar data rak ke view (Blade)
+        return view('racks.show', compact('rack'));
     }
 }

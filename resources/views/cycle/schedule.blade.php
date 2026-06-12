@@ -44,7 +44,10 @@
                     </div>
 
                     <div class="d-grid mt-5">
-                        <button type="submit" class="btn btn-primary btn-lg fw-bold py-3 shadow">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold py-3 shadow swal-confirm" 
+                            data-swal-title="Kirim Jadwal?" 
+                            data-swal-text="Notifikasi penugasan akan dikirimkan ke HP staf." 
+                            data-swal-icon="info">
                             <i class="fas fa-paper-plane me-2"></i> Simpan & Kirim Jadwal
                         </button>
                     </div>
