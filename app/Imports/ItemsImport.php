@@ -9,7 +9,7 @@ use Maatwebsite\Excel\Concerns\WithStartRow;
 class ItemsImport implements ToModel, WithStartRow
 {
     /**
-     * Memulai baca data dari baris ke-6 (mengabaikan header Accurate yang berantakan)
+     * Memulai baca data dari baris ke-6
      */
     public function startRow(): int
     {
@@ -23,7 +23,7 @@ class ItemsImport implements ToModel, WithStartRow
             return null;
         }
 
-        // Mapping Index Array sesuai kolom di file aslimu:
+        // Mapping Index Array sesuai kolom di file asli
         // $row[2] = Kode Barang
         // $row[4] = Nama Barang
         // $row[7] = Kuantitas

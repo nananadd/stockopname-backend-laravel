@@ -14,17 +14,16 @@ class RackSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Matikan sementara pengecekan relasi
+        // Matikan sementara pengecekan relasi
         Schema::disableForeignKeyConstraints();
 
-        // 2. Kosongkan tabel dengan aman
+        // Kosongkan tabel dengan aman
         Rack::truncate();
 
-        // 3. Wajib: Nyalakan kembali pengecekan relasi agar aman
+        // Nyalakan lagi pengecekan relasi agar aman
         Schema::enableForeignKeyConstraints();
 
         for ($i = 1; $i <= 50; $i++) {
-            // ... (Kode for loop 50 rak yang tadi tetap sama, tidak perlu diubah) ...
             
             $number = str_pad($i, 2, '0', STR_PAD_LEFT);
             

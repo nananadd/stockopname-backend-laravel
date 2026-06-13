@@ -16,7 +16,6 @@
         
         body {
             background-color: #f4f6f9;
-            /* Memberikan efek gradient radial halus di background */
             background-image: radial-gradient(circle at center, #ffffff 0%, #f4f6f9 100%);
         }
 
@@ -30,7 +29,6 @@
         .login-header {
             background-color: var(--sigma-black);
             padding: 2.5rem 2rem;
-            /* Garis bawah tebal khas Sigma */
             border-bottom: 5px solid var(--sigma-magenta); 
         }
 
@@ -50,7 +48,6 @@
             box-shadow: 0 5px 15px rgba(243, 26, 107, 0.3);
         }
 
-        /* Styling agar Ikon menyatu dengan Input Text */
         .input-group-text {
             background-color: #f8f9fa;
             border-right: none;
@@ -68,7 +65,6 @@
             background-color: #ffffff;
         }
 
-        /* Efek nyala magenta saat form diklik */
         .input-group:focus-within .form-control,
         .input-group:focus-within .input-group-text {
             border-color: var(--sigma-magenta);

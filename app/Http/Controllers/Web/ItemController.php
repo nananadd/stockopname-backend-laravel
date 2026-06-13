@@ -55,10 +55,10 @@ class ItemController extends Controller
             'system_stock' => 'required|integer',
         ]);
 
-        // 1. Simpan data Item (Kecualikan rack_id karena bukan kolom di tabel items)
+        // Simpan data Item (Kecualikan rack_id karena bukan kolom di tabel items)
         $item = Item::create($request->except('rack_id'));
 
-        // 2. Jika user memilih rak, simpan relasinya ke tabel pivot item_rack
+        // Jika user memilih rak, simpan relasinya ke tabel pivot item_rack
         if ($request->filled('rack_id')) {
             $item->racks()->attach($request->rack_id);
         }
@@ -81,10 +81,10 @@ class ItemController extends Controller
             'system_stock' => 'required|integer',
         ]);
 
-        // 1. Update data Item
+        // Update data Item
         $item->update($request->except('rack_id'));
 
-        // 2. Sinkronisasi rak di tabel pivot
+        // Sinkronisasi rak di tabel pivot
         if ($request->filled('rack_id')) {
             // sync() akan otomatis menghapus rak lama dan menggantinya dengan rak baru
             $item->racks()->sync([$request->rack_id]);
@@ -98,20 +98,20 @@ class ItemController extends Controller
 
     public function import(Request $request)
     {
-        // 1. Validasi file yang diunggah
+        // Validasi file yang diunggah
         $request->validate([
             'file_accurate' => 'required|mimes:xlsx,xls,csv|max:10240', // Max 10MB
         ]);
 
         try {
-            // 2. Eksekusi proses import menggunakan class ItemsImport yang kita buat sebelumnya
+            // Eksekusi proses import menggunakan class ItemsImport yang kita buat sebelumnya
             Excel::import(new ItemsImport, $request->file('file_accurate'));
 
-            // 3. Kembalikan dengan pesan sukses
+            // Return dengan pesan sukses
             return redirect()->route('items.index')->with('success', 'Ribuan data Master Barang dari Accurate berhasil di-import dan disinkronisasi!');
             
         } catch (\Exception $e) {
-            // Tangkap error jika format Excel tidak sesuai
+            // Error jika format Excel tidak sesuai
             return redirect()->back()->with('error', 'Gagal melakukan import. Pastikan format file sesuai. Error: ' . $e->getMessage());
         }
     }
@@ -126,10 +126,8 @@ class ItemController extends Controller
     public function sync()
     {
         try {
-            // TULIS LOGIKA TARIK DATA API ACCURATE DI SINI
-            // Contoh: $accurateApi->fetchItems();
             
-            // Jangan lupa catat ke log aktivitas Admin
+            // catat ke log aktivitas Admin
             \App\Models\ActivityLog::create([
                 'user_id' => auth()->id(),
                 'action' => 'Sync Accurate',

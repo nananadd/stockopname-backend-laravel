@@ -32,17 +32,14 @@
             margin: 0;
             padding: 0;
         }
-        /* Sembunyikan elemen layout bawaan (sesuaikan class navbar/sidebar kamu) */
         nav, header, footer, .sidebar { 
             display: none !important; 
         }
-        /* Hilangkan border dan shadow card saat di atas kertas */
         .card { 
             border: none !important; 
             box-shadow: none !important; 
             margin: 0 auto;
         }
-        /* Atur agar posisinya pas di tengah kertas */
         .container {
             align-items: flex-start !important;
             padding-top: 20px;

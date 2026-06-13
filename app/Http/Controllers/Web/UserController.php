@@ -12,8 +12,7 @@ class UserController extends Controller
 
     public function index()
     {
-        // Ambil data staf. Sesuai kesepakatan kita sebelumnya, 
-        // kita ambil semua staf yang memiliki Role ID = 5 (Staf Gudang)
+        // Ambil semua staf yang memiliki Role ID = 5 (Staf Gudang)
         $staffs = \App\Models\User::where('role_id', 5)->get();
 
         // Kirim data $staffs ke file resources/views/users/index.blade.php

@@ -14,18 +14,17 @@ class RoleMiddleware
      * @param  string  ...$roles
      * @return mixed
      */
-    public function handle($request, Closure $next, ...$roles) // <-- UBAH DI SINI
+    public function handle($request, Closure $next, ...$roles)
     {
-        // 1. Pastikan user sudah login
+        // Pastikan user sudah login
         if (!auth()->check()) {
             return redirect('login');
         }
 
-        // 2. Ambil nama role dari user yang sedang login
-        // Menyesuaikan dengan relasi tabel User ke tabel Role milikmu
+        // Ambil nama role dari user yang sedang login
         $userRole = auth()->user()->role->name ?? ''; 
 
-        // 3. Cek apakah role user saat ini ADA di dalam daftar array $roles
+        // Cek apakah role user saat ini ADA di dalam daftar array $roles
         if (!in_array($userRole, $roles)) {
             // Jika tidak ada, lempar ke halaman 403 Forbidden
             abort(403, 'Forbidden! Anda tidak memiliki hak akses ke halaman ini.');

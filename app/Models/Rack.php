@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Rack extends Model
 {
-    // Daftarkan kolom yang boleh diisi (mass assignable)
     protected $fillable = [
         'warehouse_id',
         'code',

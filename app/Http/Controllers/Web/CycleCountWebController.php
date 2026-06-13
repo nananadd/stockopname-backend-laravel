@@ -74,7 +74,7 @@ class CycleCountWebController extends Controller
             'counted_by' => $request->counted_by,
             'scheduled_at' => $request->scheduled_at,
             'status' => 'draft',
-            'started_at' => now(), // Placeholder atau bisa dikosongkan jika field nullable
+            'started_at' => now(), // Set started_at ke waktu saat ini
         ]);
 
         // lock rack
@@ -157,13 +157,12 @@ class CycleCountWebController extends Controller
             $item = $detail->item;
             
             if ($item) {
-                // A. Update Master Stok (Sistem Inventory Pusat)
+                // Update Master Stok (Sistem Inventory Pusat)
                 $item->system_stock = ($item->system_stock - $detail->system_stock_snapshot) + $detail->physical_stock;
                 $item->save();
 
-                // B. LOGIKA PINDAH RAK (DEDICATED LOCATION)
+                // LOGIKA PINDAH RAK (DEDICATED LOCATION)
                 if ($detail->physical_stock == 0) {
-                    // JURUS SAPU BERSIH: 
                     // Jika staf melaporkan barang ini habis (0), hapus relasinya dari tabel 
                     // agar database item_rack tidak dipenuhi oleh baris berangka 0.
                     DB::table('item_rack')->where('item_id', $item->id)->delete();
@@ -172,9 +171,8 @@ class CycleCountWebController extends Controller
                     $punyaRumahLama = DB::table('item_rack')->where('item_id', $item->id)->exists();
 
                     if ($punyaRumahLama) {
-                        // KASUS PINDAH ALAMAT RAK:
-                        // Kita temukan datanya, lalu kita TIMPA 'rack_id' lamanya dengan 'rack_id' yang baru
-                        // Jadi datanya tidak akan double, melainkan resmi pindah rak.
+                        // temukan datanya, lalu TIMPA 'rack_id' lamanya dengan 'rack_id' yang baru
+                        // Jadi datanya tidak double, melainkan resmi pindah rak.
                         DB::table('item_rack')
                             ->where('item_id', $item->id)
                             ->update([
@@ -220,7 +218,7 @@ class CycleCountWebController extends Controller
     {
         $cycle = CycleCount::with(['details.item', 'rack'])->findOrFail($id);
 
-        // Format nama file agar rapi saat terdownload di laptop Manajer
+        // Format nama file agar rapi saat didownload di laptop Manajer
         $fileName = 'Update_Accurate_Rak_' . ($cycle->rack->code ?? '') . '_' . date('Ymd_His') . '.xlsx';
         
         return Excel::download(new AccuratePenyesuaianExport($cycle), $fileName);
@@ -254,22 +252,22 @@ class CycleCountWebController extends Controller
     {
         $cycle = CycleCount::findOrFail($id);
 
-        // Keamanan: Hanya boleh sync jika status masih dalam proses (belum di-approve)
+        // Hanya boleh sync jika status masih dalam proses (belum di-approve)
         if (!in_array($cycle->status, ['draft', 'submitted'])) {
             return back()->with('error', 'Tidak dapat sinkronisasi. Dokumen ini sudah dikunci/disetujui.');
         }
 
         $rack = $cycle->rack;
 
-        // 1. Kumpulkan ID barang yang SAAT INI SUDAH ADA di dalam tabel laporan
+        // Kumpulkan ID barang yang SAAT INI SUDAH ADA di dalam tabel laporan
         $existingItemIds = $cycle->details()->pluck('item_id')->toArray();
 
-        // 2. Cari barang di Rak tersebut yang BELUM MASUK ke daftar (membandingkan ID)
+        // Cari barang di Rak tersebut yang BELUM MASUK ke daftar (membandingkan ID)
         $newItems = $rack->items()->whereNotIn('items.id', $existingItemIds)->get();
 
         $syncedCount = 0;
 
-        // 3. Looping untuk mengambil 'Snapshot' susulan khusus untuk barang baru tersebut
+        // Looping untuk mengambil 'Snapshot' susulan khusus untuk barang baru tersebut
         foreach ($newItems as $item) {
             $cycle->details()->create([
                 'item_id' => $item->id,

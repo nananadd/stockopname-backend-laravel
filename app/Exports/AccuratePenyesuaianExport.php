@@ -5,9 +5,9 @@ namespace App\Exports;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithCustomStartCell; // 1. Import fitur penentu sel
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 
-class AccuratePenyesuaianExport implements FromCollection, WithHeadings, WithMapping, WithCustomStartCell // 2. Tambahkan implements-nya
+class AccuratePenyesuaianExport implements FromCollection, WithHeadings, WithMapping, WithCustomStartCell
 {
     protected $cycle;
 
@@ -16,10 +16,10 @@ class AccuratePenyesuaianExport implements FromCollection, WithHeadings, WithMap
         $this->cycle = $cycle;
     }
 
-    // 3. FUNGSI AJAIB: Menentukan titik kordinat awal penulisan Excel
+    // Menentukan titik kordinat awal penulisan Excel
     public function startCell(): string
     {
-        // Kita perintahkan Excel untuk mengeksekusi fungsi headings() mulai dari sel A5
+        // Perintah Excel untuk mengeksekusi fungsi headings() mulai dari sel A5
         return 'A5';
     }
 
@@ -30,10 +30,9 @@ class AccuratePenyesuaianExport implements FromCollection, WithHeadings, WithMap
 
     public function headings(): array
     {
-        // Karena sistem mulai dari A5, maka:
+        // Karena sistem mulai dari A5
         // Array pertama ini akan menempati Baris ke-5 (sebagai Header Accurate)
         // Array kedua ini akan menempati Baris ke-6 (sebagai jarak/baris kosong)
-        // Sehingga, data mapping otomatis akan tertulis mulai di BARIS KE-7!
         return [
             [
                 '', '', 'Kode Barang', '', 'Nama Barang', '', '', 'Kuantitas', '', 'Satuan', '', 'Hitung #1', ''
@@ -48,7 +47,7 @@ class AccuratePenyesuaianExport implements FromCollection, WithHeadings, WithMap
 
     public function map($detail): array
     {
-        // Data di bawah ini akan tercetak mulai baris ke-7 ke bawah dengan posisi kolom yang melompat-lompat sesuai Accurate
+        // Data ini akan tercetak mulai baris ke 7 ke bawah dengan posisi kolom sesuai Accurate
         return [
             '', // A
             '', // B

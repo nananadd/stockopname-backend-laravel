@@ -16,15 +16,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            /* Warna asli dari website Sigma */
             --sigma-black: #111111;       
             --sigma-magenta: #f31a6b;     
             
-            /* Warna latar (Ambient) */
             --ambient-bg: #f8f9fa;
             --ambient-card-header: #ffffff;
             
-            /* Warna indikator tabel selisih */
             --variance-kurang: #dc3545; 
             --variance-sesuai: #28a745; 
             --variance-lebih: #17a2b8;  
@@ -37,7 +34,6 @@
             overflow-x: hidden;
         }
 
-        /* Override Bootstrap utilities */
         .text-primary { color: var(--sigma-magenta) !important; }
         .text-dark { color: var(--sigma-black) !important; }
         
@@ -45,7 +41,6 @@
         .bg-sigma-magenta { background-color: var(--sigma-magenta) !important; color: white; }
         .border-sigma-magenta { border-bottom: 3px solid var(--sigma-magenta) !important; }
         
-        /* Tombol Utama jadi warna Magenta */
         .btn-primary { 
             background-color: var(--sigma-magenta); 
             border-color: var(--sigma-magenta);
@@ -58,7 +53,6 @@
             color: #ffffff;
         }
 
-        /* Styling Kartu */
         .card {
             border-radius: 0.5rem;
             border: none;
@@ -70,11 +64,10 @@
             padding: 1.25rem 1.5rem;
         }
 
-        /* --- SIDEBAR STYLING --- */
         .sidebar {
             width: 280px;
-            min-width: 280px; /* Mencegah ukuran mengecil dari 280px */
-            flex-shrink: 0;   /* Mengunci elemen agar tidak tergencet oleh Flexbox */
+            min-width: 280px;
+            flex-shrink: 0;
             height: 100vh;          
             position: sticky;       
             top: 0;                 
@@ -83,7 +76,6 @@
             transition: all 0.3s;
         }
         
-        /* Modifikasi scrollbar pada sidebar agar lebih rapi (opsional) */
         .sidebar::-webkit-scrollbar { width: 6px; }
         .sidebar::-webkit-scrollbar-track { background: var(--sigma-black); }
         .sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
@@ -117,7 +109,7 @@
         }
 
         .logout-btn:hover {
-            background-color: #dc3545 !important; /* Warna Merah Danger */
+            background-color: #dc3545 !important;
             color: #ffffff !important;
         }
 
@@ -131,18 +123,15 @@
         }
 
         .settings-hover:hover {
-            /* Latar belakang menjadi pink transparan sangat halus */
             background-color: rgba(243, 26, 107, 0.08) !important; 
             color: var(--sigma-magenta) !important;
         }
         
         .settings-hover:hover .setting-icon {
-            /* Ikon ikut berubah menjadi warna Magenta Sigma */
             color: var(--sigma-magenta) !important;
         }
 
         .settings-hover:hover .setting-icon {
-            /* Ikon ikut berubah menjadi warna Magenta Sigma */
             color: var(--sigma-magenta) !important;
         }
 
@@ -167,13 +156,11 @@
             border-color: #444 !important;
         }
 
-        /* Memastikan seluruh garis antar baris tabel ikut gelap */
         [data-bs-theme="dark"] th, 
         [data-bs-theme="dark"] td {
             border-color: #444 !important;
         }
 
-        /* Memperbaiki warna kotak pencarian (Search/Input) di atas tabel */
         [data-bs-theme="dark"] .form-control,
         [data-bs-theme="dark"] .form-select {
             background-color: #2d2d2d !important;
@@ -186,7 +173,6 @@
             color: #f8f9fa !important;
         }
 
-        /* Memperbaiki navigasi halaman (Pagination) di bawah tabel jika ada */
         [data-bs-theme="dark"] .pagination .page-link {
             background-color: #1e1e1e;
             border-color: #444;
@@ -206,13 +192,11 @@
             border-color: #444 !important;
         }
         
-        /* Memaksa teks 'Profil & Pengaturan' dan menu lainnya menjadi putih */
         [data-bs-theme="dark"] .dropdown-item,
         [data-bs-theme="dark"] .settings-hover {
             color: #f8f9fa !important; 
         }
 
-        /* Memaksa ikon gir menjadi abu-abu terang agar kelihatan */
         [data-bs-theme="dark"] .settings-hover .setting-icon {
             color: #adb5bd !important;
         }
@@ -310,7 +294,6 @@
         <div class="main-content">
             <div class="container-fluid p-4 p-md-5">
 
-                <!-- Yield Content -->
                 @yield('content')
                 
             </div>
@@ -324,12 +307,12 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // 1. Menangkap event 'submit' pada form, bukan sekadar 'click' pada tombol
+        // Menangkap event 'submit' pada form
         document.addEventListener('submit', function (e) {
-            let btn = e.submitter; // Mendeteksi tombol mana yang memicu submit
+            let btn = e.submitter;
             
             if (btn && btn.classList.contains('swal-confirm')) {
-                e.preventDefault(); // Tahan pengiriman data sementara
+                e.preventDefault();
                 
                 let title = btn.getAttribute('data-swal-title') || 'Apakah Anda yakin?';
                 let text = btn.getAttribute('data-swal-text') || 'Data ini akan diproses.';
@@ -341,19 +324,19 @@
                     text: text,
                     icon: icon,
                     showCancelButton: true,
-                    confirmButtonColor: '#f31a6b', // Warna Pink Sigma
+                    confirmButtonColor: '#f31a6b',
                     cancelButtonColor: '#6c757d',
                     confirmButtonText: confirmText,
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        e.target.submit(); // Lanjutkan pengiriman ke server jika "Ya" diklik
+                        e.target.submit();
                     }
                 });
             }
         });
 
-        // 2. Alert Sukses / Error bawaan Controller Laravel
+        // Alert Sukses / Error bawaan Controller Laravel
         @if(session('success'))
             Swal.fire({ icon: 'success', title: 'Berhasil!', text: '{!! session('success') !!}', timer: 2000, showConfirmButton: false });
         @endif
@@ -362,8 +345,7 @@
             Swal.fire({ icon: 'error', title: 'Oops...', text: '{!! session('error') !!}' });
         @endif
 
-        // 3. Penangkap Error Validasi dari Form
-        // Jika email kembar atau form tidak valid, SweetAlert akan memberi tahu alasannya
+        // Penangkap Error Validasi dari Form
         @if($errors->any())
             Swal.fire({
                 icon: 'error',
@@ -374,12 +356,12 @@
     </script>
 
     <script>
-        // 1. Cek memori browser langsung saat halaman dimuat
+        // Cek memori browser langsung saat halaman dimuat
         if (localStorage.getItem('sigma_theme') === 'dark') {
             document.documentElement.setAttribute('data-bs-theme', 'dark');
         }
 
-        // 2. Fungsi untuk mengontrol tombol toggle di halaman Pengaturan
+        // Fungsi untuk mengontrol tombol toggle di halaman Pengaturan
         document.addEventListener('DOMContentLoaded', function() {
             const darkToggle = document.getElementById('darkModeToggle');
             

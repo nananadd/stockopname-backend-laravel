@@ -10,13 +10,13 @@ use Carbon\Carbon;
 
 class GenerateDailyCycleCount extends Command
 {
-    // Ini nama perintah yang akan kita panggil di terminal
+    // Ini nama perintah yang akan panggil di terminal
     protected $signature = 'cyclecount:generate';
     protected $description = 'Otomatis membuat jadwal Cycle Count harian berdasarkan kategori ABC';
 
     public function handle()
     {
-        // 1. Ambil SEMUA staf gudang (Karena sekarang hanya 1 role, misal Role = 5) yang HADIR
+        // Ambil SEMUA staf gudang yang aktif
         $staffs = User::where('role_id', 5)
                       ->where('is_present', 1)
                       ->get();
@@ -26,21 +26,19 @@ class GenerateDailyCycleCount extends Command
             return;
         }
 
-        $staffCount = $staffs->count(); // Akan terdeteksi 10 orang
+        $staffCount = $staffs->count();
         $staffIndex = 0; 
         $tasksCreated = 0;
 
-        // ===================================================================
         // LOGIKA RASIO PT SIGMA BERKAT SEJATI (Total 50 Rak, 10 Staf)
         // Beban kerja sangat ringan: 2 Rak per staf per hari.
         // Kuota harian otomatis menjadi 20 tugas per hari.
-        // ===================================================================
         $racksPerStaff = 2; 
         $dailyQuota = $staffCount * $racksPerStaff; 
 
-        // 2. ALGORITMA LEAST RECENTLY COUNTED
+        // ALGORITMA LEAST RECENTLY COUNTED
         // Ambil semua rak, urutkan dari yang BELUM PERNAH dihitung (NULL), 
-        // lalu urutkan dari tanggal paling lampau.
+        // lalu urutkan dari tanggal paling lama.
         $racks = Rack::orderByRaw('ISNULL(last_counted_at) DESC')
                      ->orderBy('last_counted_at', 'asc')
                      ->get();
@@ -69,7 +67,7 @@ class GenerateDailyCycleCount extends Command
                 if ($rack->category == 'C' && $daysSinceLastCount >= 180) $needsCounting = true;
             }
 
-            // Jika rak ini jatuh tempo, buatkan jadwalnya!
+            // Jika rak ini jatuh tempo, buatkan jadwalnya
             if ($needsCounting) {
                 // Cek agar tidak membuat jadwal double jika draf sebelumnya belum dikerjakan
                 $existingDraft = CycleCount::where('rack_id', $rack->id)

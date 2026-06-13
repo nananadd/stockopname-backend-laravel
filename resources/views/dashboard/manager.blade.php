@@ -78,22 +78,20 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // --- GRAFIK 1: TREND LINE CHART ---
             const ctxTrend = document.getElementById('trendChart').getContext('2d');
             new Chart(ctxTrend, {
                 type: 'line',
                 data: {
-                    // Konversi array PHP ke JSON Javascript
                     labels: {!! json_encode($trendDates) !!},
                     datasets: [{
                         label: 'Jumlah Cycle Count Harian',
                         data: {!! json_encode($trendData) !!},
-                        borderColor: '#f31a6b', // Warna Sigma Magenta
-                        backgroundColor: 'rgba(243, 26, 107, 0.1)', // Magenta transparan
+                        borderColor: '#f31a6b',
+                        backgroundColor: 'rgba(243, 26, 107, 0.1)',
                         borderWidth: 3,
-                        tension: 0.4, // Membuat garis jadi melengkung (smooth)
+                        tension: 0.4,
                         fill: true,
-                        pointBackgroundColor: '#111111', // Titik warna Hitam
+                        pointBackgroundColor: '#111111',
                     }]
                 },
                 options: {
@@ -105,7 +103,6 @@
                 }
             });
 
-            // --- GRAFIK 2: DOUGHNUT CHART (AKURASI) ---
             const ctxVariance = document.getElementById('varianceChart').getContext('2d');
             new Chart(ctxVariance, {
                 type: 'doughnut',
@@ -114,8 +111,8 @@
                     datasets: [{
                         data: [{{ $varianceSesuai }}, {{ $varianceSelisih }}],
                         backgroundColor: [
-                            '#111111', // Hitam (Sesuai)
-                            '#f31a6b'  // Magenta (Selisih)
+                            '#111111',
+                            '#f31a6b'
                         ],
                         borderWidth: 0,
                         hoverOffset: 4
@@ -123,7 +120,7 @@
                 },
                 options: {
                     responsive: true,
-                    cutout: '70%', // Membuat lubang donat agak besar
+                    cutout: '70%',
                     plugins: {
                         legend: { position: 'bottom' }
                     }

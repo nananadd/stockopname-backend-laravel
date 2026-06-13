@@ -11,9 +11,7 @@ use App\Models\CycleCountDetail;
 
 class SyncController extends Controller
 {
-    // ==========================================
-    // API PULL: Mengirim data ke Mobile (Termasuk Jadwal)
-    // ==========================================
+    // API PULL: Mengirim data ke Mobile
     public function pullMasterData()
     {
         $racks = Rack::with('items')->get(); 
@@ -33,9 +31,7 @@ class SyncController extends Controller
         ], 200);
     }
 
-    // ==========================================
     // API PUSH: Menerima hasil hitung dari Mobile
-    // ==========================================
     public function pushCycleCount(Request $request)
     {
         $data = $request->validate([
@@ -48,10 +44,10 @@ class SyncController extends Controller
 
         foreach ($data['cycle_counts'] as $cycleData) {
             
-            // 1. CARI DOKUMEN LAMA (Draft ATAU Recount)
+            // CARI DOKUMEN LAMA (Draft ATAU Recount)
             $cycle = CycleCount::where('rack_id', $cycleData['rack_id'])
                                ->where('counted_by', auth()->id())
-                               // INI KUNCI UTAMANYA: Pakai whereIn, bukan where biasa!
+                               // pake whereIn() karena statusnya bisa draft atau recount
                                ->whereIn('status', ['draft', 'recount']) 
                                ->first();
 
@@ -73,7 +69,7 @@ class SyncController extends Controller
                 ]);
             }
 
-            // 2. TIMPA DETAIL BARANGNYA (Jangan sampai double juga)
+            // TIMPA DETAIL BARANGNYA 
             foreach ($cycleData['details'] as $detail) {
                 $item = Item::find($detail['item_id']);
                 

@@ -16,7 +16,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized. Email atau password salah.'], 401);
         }
 
-        // CEK ROLE USER: Jika BUKAN staff, tendang keluar!
+        // cek role user: Jika BUKAN staff, logout
         if (auth('api')->user()->role->name !== 'staff') {
             auth('api')->logout();
             return response()->json(['error' => 'Akses Ditolak: Aplikasi mobile ini HANYA untuk Staf Gudang.'], 403);

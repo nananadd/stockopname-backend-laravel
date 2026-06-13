@@ -68,7 +68,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims()
     {
-        // Opsional: kita bisa menyisipkan role_id ke dalam token biar Flutter tau
+        // menyisipkan role_id ke dalam token biar Flutter tau
         return [
             'role_id' => $this->role_id
         ];

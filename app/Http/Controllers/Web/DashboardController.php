@@ -10,13 +10,11 @@ use App\Models\CycleCountDetail;
 use Illuminate\Http\Request;
 use App\Models\ActivityLog;
 use App\Models\User;
-use Carbon\Carbon; // buat ngambil data tanggal pada grafik
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    // ========================================================
-    // 1. DASHBOARD UMUM & SUPERVISOR (Fokus ke Operasional)
-    // ========================================================
+    // DASHBOARD UMUM & SUPERVISOR (Fokus ke Operasional)
     public function index()
     {
         $rackCount = Rack::count();
@@ -60,9 +58,7 @@ class DashboardController extends Controller
         ));
     }
 
-    // ========================================================
-    // 2. DASHBOARD MANAJER & OWNER (Fokus ke Analitik & Grafik)
-    // ========================================================
+    // DASHBOARD MANAJER & OWNER (Fokus ke Analitik & Grafik)
     public function manager(Request $request)
     {
         // Kotak Metrik Atas
@@ -71,35 +67,30 @@ class DashboardController extends Controller
         $totalCycleCounts = CycleCount::count();
         $countsThisMonth = CycleCount::whereMonth('started_at', Carbon::now()->month)->count();
 
-        // DATA UNTUK GRAFIK LINE (Tren Hitungan 7 Hari Terakhir)
+        // Data grafik line (Tren Hitungan 7 Hari Terakhir)
         $trendDates = [];
         $trendData = [];
         
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
-            $trendDates[] = $date->format('d M'); // Format: "14 Apr"
+            $trendDates[] = $date->format('d M'); 
             
             // Menghitung jumlah Cycle Count pada tanggal tersebut
             $trendData[] = CycleCount::whereDate('started_at', $date)->count();
         }
 
-        // =======================================================
-        // DATA UNTUK GRAFIK DOUGHNUT (Rasio Akurasi Stok/Variance)
-        // =======================================================
-        
-        // 1. Ambil total seluruh barang yang pernah dihitung
+        // Grafik Donut (Rasio Akurasi Stok/Variance)
+        // Ambil total seluruh barang yang pernah dihitung
         $totalCountedItems = CycleCountDetail::count();
 
         if ($totalCountedItems > 0) {
-            // 2. Hitung yang SESUAI (stok sistem == stok fisik)
-            // nama kolom adalah 'system_stock_snapshot' dan 'physical_stock'. 
-            // Silakan sesuaikan jika nama kolom di databasemu berbeda.
+            // Hitung yang SESUAI (stok sistem == stok fisik)
             $sesuaiCount = CycleCountDetail::whereColumn('system_stock_snapshot', 'physical_stock')->count();
             
-            // 3. Hitung yang SELISIH (stok sistem != stok fisik)
+            // Hitung yang SELISIH (stok sistem != stok fisik)
             $selisihCount = CycleCountDetail::whereColumn('system_stock_snapshot', '!=', 'physical_stock')->count();
 
-            // 4. Ubah ke dalam bentuk Persentase (dibulatkan agar rapi di grafik)
+            // Ubah ke dalam bentuk Persentase (dibulatkan agar rapi di grafik)
             $varianceSesuai = round(($sesuaiCount / $totalCountedItems) * 100);
             $varianceSelisih = round(($selisihCount / $totalCountedItems) * 100);
         } else {

@@ -9,9 +9,7 @@ use App\Http\Controllers\Web\CycleCountWebController;
 use App\Http\Controllers\Web\UserController;
 use App\Http\Controllers\Web\SettingController;
 
-// ==========================================
 // RUTE PUBLIK
-// ==========================================
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'loginWeb'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -20,19 +18,15 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
-// ==========================================
 // RUTE WAJIB LOGIN (AUTH)
-// ==========================================
 Route::middleware(['auth'])->group(function () {
 
-    // 1. Rute Dasar (Semua Role Web Bisa Akses)
+    // Rute Dasar (Semua Role Web Bisa Akses)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings/password', [SettingController::class, 'updatePassword'])->name('settings.password');
 
-    // ==========================================
-    // GRUP KHUSUS: DASHBOARD MANAGER & OWNER
-    // ==========================================
+    // DASHBOARD MANAGER & OWNER
     Route::middleware(['role:manager,owner'])->group(function () {
         // Route::get('/manager/dashboard', [DashboardController::class, 'manager'])->name('manager.dashboard');
         Route::get('/management/dashboard', [DashboardController::class, 'manager'])->name('management.dashboard');
@@ -42,9 +36,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('racks', RackController::class);
     Route::resource('items', ItemController::class);
 
-    // ==========================================
-    // GRUP 1: OPERASIONAL (Admin, Manager, Owner, Supervisor)
-    // ==========================================
+    //OPERASIONAL (Admin, Manager, Owner, Supervisor)
     Route::middleware(['role:admin,manager,owner,supervisor'])->group(function () {
         // Manajemen Kehadiran (Semua bisa lihat tabel dan ubah status hadir)
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -55,10 +47,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('cycle/{id}', [CycleCountWebController::class, 'show'])->name('cycle.show');
     });
 
-    // ==========================================
-    // GRUP 2: EKSEKUTIF / TOP LEVEL (Admin, Manager, Owner)
-    // Fitur sensitif: Tambah/Hapus Staf, Import Barang, Laporan Keuangan
-    // ==========================================
+    // EKSEKUTIF / TOP LEVEL (Admin, Manager, Owner)
+    // Fitur Tambah/Hapus Staf, Import Barang, Laporan Keuangan
     Route::middleware(['role:admin,manager,owner'])->group(function () {
         // CRUD Staf (Supervisor DILARANG masuk sini)
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
@@ -74,10 +64,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/cycle/{id}/export-excel-laporan', [CycleCountWebController::class, 'exportExcelLaporan'])->name('cycle.export.excel');
     });
 
-    // ==========================================
-    // GRUP 3: PELAKSANA LAPANGAN (Admin & Supervisor)
-    // Fitur: Buat Jadwal, Approve Hasil Hitung, Request Recount
-    // ==========================================
+    // PELAKSANA LAPANGAN (Admin & Supervisor)
+    // Fitur Buat Jadwal, Approve Hasil Hitung, Request Recount
     Route::middleware(['role:admin,supervisor'])->group(function () {
         Route::get('cycle/schedule', [CycleCountWebController::class, 'createSchedule'])->name('cycle.createSchedule');
         Route::post('cycle/schedule', [CycleCountWebController::class, 'storeSchedule'])->name('cycle.storeSchedule');

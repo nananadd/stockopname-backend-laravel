@@ -133,12 +133,12 @@
 </div>
 
 <script>
-    // 1. Cek memori browser langsung saat halaman dimuat
+    // Cek memori browser langsung saat halaman dimuat
     if (localStorage.getItem('sigma_theme') === 'dark') {
         document.documentElement.setAttribute('data-bs-theme', 'dark');
     }
 
-    // 2. Fungsi untuk mengontrol tombol toggle di halaman Pengaturan
+    // Fungsi untuk mengontrol tombol toggle di halaman Pengaturan
     document.addEventListener('DOMContentLoaded', function() {
         const darkToggle = document.getElementById('darkModeToggle');
         
@@ -178,16 +178,16 @@
                 const inputField = document.getElementById(targetId);
                 const icon = this.querySelector('i');
 
-                // Jika tipenya password, ubah ke text (terlihat)
+                // Jika tipenya password
                 if (inputField.type === 'password') {
                     inputField.type = 'text';
                     icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash'); // Ganti ikon jadi mata dicoret
+                    icon.classList.add('fa-eye-slash');
                 } else {
-                    // Jika teks, kembalikan menjadi password (tersembunyi)
+                    // Jika Text
                     inputField.type = 'password';
                     icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye'); // Ganti kembali ke ikon mata biasa
+                    icon.classList.add('fa-eye');
                 }
             });
         });
@@ -195,7 +195,6 @@
 </script>
 
 <style>
-    /* Sedikit CSS untuk mempercantik ukuran ikon */
     .w-15px { width: 15px; text-align: center; }
     
     [data-bs-theme="dark"] body {

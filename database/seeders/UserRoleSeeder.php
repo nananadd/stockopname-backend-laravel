@@ -10,7 +10,7 @@ class UserRoleSeeder extends Seeder
 {
     public function run()
     {
-        // 1. Akun Manajer (Untuk lihat grafik & performa)
+        // Akun Manajer (Untuk lihat grafik & performa)
         User::create([
             'name' => 'Bapak Manajer',
             'email' => 'manager@sigmastationery.com',
@@ -18,7 +18,7 @@ class UserRoleSeeder extends Seeder
             'role_id' => '3', // Role ID untuk Manajer = 3
         ]);
 
-        // 2. Akun Supervisor (Untuk ACC hasil hitungan)
+        // Akun Supervisor (Untuk ACC hasil hitungan)
         User::create([
             'name' => 'Ibu Supervisor',
             'email' => 'spv@sigmastationery.com',
@@ -26,7 +26,7 @@ class UserRoleSeeder extends Seeder
             'role_id' => '4', // Role ID untuk Supervisor = 4
         ]);
 
-        // 2. Akun Supervisor (Untuk ACC hasil hitungan)
+        // Akun Supervisor (Untuk ACC hasil hitungan)
         User::create([
             'name' => 'Bapak Supervisor',
             'email' => 'spv1@sigmastationery.com',
@@ -34,7 +34,7 @@ class UserRoleSeeder extends Seeder
             'role_id' => '4', // Role ID untuk Supervisor = 4
         ]);
 
-        // 3. Akun Staf Lapangan (Untuk login di HP / Flutter)
+        // Akun Staf Lapangan (Untuk login di HP / Flutter)
         User::create([
             'name' => 'Staf Gudang (Picker)',
             'email' => 'staff@sigmastationery.com',
@@ -42,7 +42,7 @@ class UserRoleSeeder extends Seeder
             'role_id' => '5', // Role ID untuk Staf Lapangan = 5
         ]);
 
-        // 4. Akun Staf Lapangan (Untuk login di HP / Flutter)
+        // Akun Staf Lapangan (Untuk login di HP / Flutter)
         User::create([
             'name' => 'Staf Gudang 1',
             'email' => 'staff1@sigmastationery.com',
@@ -50,7 +50,7 @@ class UserRoleSeeder extends Seeder
             'role_id' => '5', // Role ID untuk Staf Lapangan = 5
         ]);
 
-        // 5. Akun Staf Lapangan (Untuk login di HP / Flutter)
+        // Akun Staf Lapangan (Untuk login di HP / Flutter)
         User::create([
             'name' => 'Staf Gudang 2',
             'email' => 'staff2@sigmastationery.com',
@@ -58,7 +58,7 @@ class UserRoleSeeder extends Seeder
             'role_id' => '5', // Role ID untuk Staf Lapangan = 5
         ]);
 
-        // 6. Akun Staf Lapangan (Untuk login di HP / Flutter)
+        // Akun Staf Lapangan (Untuk login di HP / Flutter)
         User::create([
             'name' => 'Staf Gudang 3',
             'email' => 'staff3@sigmastationery.com',
@@ -66,7 +66,7 @@ class UserRoleSeeder extends Seeder
             'role_id' => '5', // Role ID untuk Staf Lapangan = 5
         ]);
 
-        // 7. Akun Staf Lapangan (Untuk login di HP / Flutter)
+        // Akun Staf Lapangan (Untuk login di HP / Flutter)
         User::create([
             'name' => 'Staf Gudang 4',
             'email' => 'staff4@sigmastationery.com',
@@ -74,7 +74,7 @@ class UserRoleSeeder extends Seeder
             'role_id' => '5', // Role ID untuk Staf Lapangan = 5
         ]);
 
-        // 8. Akun Staf Lapangan (Untuk login di HP / Flutter)
+        // Akun Staf Lapangan (Untuk login di HP / Flutter)
         User::create([
             'name' => 'Staf Gudang 5',
             'email' => 'staff5@sigmastationery.com',
@@ -82,7 +82,7 @@ class UserRoleSeeder extends Seeder
             'role_id' => '5', // Role ID untuk Staf Lapangan = 5
         ]);
 
-        // 9. Akun Staf Lapangan (Untuk login di HP / Flutter)
+        // Akun Staf Lapangan (Untuk login di HP / Flutter)
          User::create([
             'name' => 'Staf Gudang 6',
             'email' => 'staff6@sigmastationery.com',
@@ -90,7 +90,7 @@ class UserRoleSeeder extends Seeder
             'role_id' => '5', // Role ID untuk Staf Lapangan = 5
         ]);
 
-        // 10. Akun Staf Lapangan (Untuk login di HP / Flutter)
+        // Akun Staf Lapangan (Untuk login di HP / Flutter)
         User::create([
             'name' => 'Staf Gudang 7',
             'email' => 'staff7@sigmastationery.com',
@@ -98,7 +98,7 @@ class UserRoleSeeder extends Seeder
             'role_id' => '5', // Role ID untuk Staf Lapangan = 5
         ]);
 
-        // 11. Akun Staf Lapangan (Untuk login di HP / Flutter)
+        // Akun Staf Lapangan (Untuk login di HP / Flutter)
         User::create([
             'name' => 'Staf Gudang 8',
             'email' => 'staff8@sigmastationery.com',
@@ -106,7 +106,7 @@ class UserRoleSeeder extends Seeder
             'role_id' => '5', // Role ID untuk Staf Lapangan = 5
         ]);
 
-        // 12. Akun Staf Lapangan (Untuk login di HP / Flutter)
+        // Akun Staf Lapangan (Untuk login di HP / Flutter)
         User::create([
             'name' => 'Staf Gudang 9',
             'email' => 'staff9  @sigmastationery.com',

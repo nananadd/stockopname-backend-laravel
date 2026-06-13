@@ -51,12 +51,12 @@ class LaporanCycleCountExport implements FromCollection, WithHeadings, WithMappi
 
     public function styles(Worksheet $sheet)
     {
-        // 1. Merge (Gabungkan) Sel untuk Kop Surat dari kolom A sampai F
+        // Merge (Gabungkan) Sel untuk Kop Surat dari kolom A sampai F
         $sheet->mergeCells('A1:F1');
         $sheet->mergeCells('A2:F2');
         $sheet->mergeCells('A3:F3');
 
-        // 2. Baris 1: PT SIGMA BERKAT SEJATI (Courier New, Normal/Tidak Bold, 12pt)
+        // Baris 1: PT SIGMA BERKAT SEJATI (Courier, Normal, 18pt)
         $sheet->getStyle('A1')->applyFromArray([
             'font' => [
                 'name' => 'Courier', 
@@ -66,7 +66,7 @@ class LaporanCycleCountExport implements FromCollection, WithHeadings, WithMappi
             'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
         ]);
 
-        // 3. Baris 2: Judul Laporan (Arial, Tebal, 18pt, Merah Accurate)
+        // Baris 2: Judul Laporan (Arial, Bold, 18pt, Merah)
         $sheet->getStyle('A2')->applyFromArray([
             'font' => [
                 'name' => 'Arial', 
@@ -77,7 +77,7 @@ class LaporanCycleCountExport implements FromCollection, WithHeadings, WithMappi
             'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
         ]);
 
-        // 4. Baris 3: Tanggal Laporan (Courier New, 11pt)
+        // Baris 3: Tanggal Laporan (Courier, 11pt)
         $sheet->getStyle('A3')->applyFromArray([
             'font' => [
                 'name' => 'Courier', 
@@ -86,7 +86,7 @@ class LaporanCycleCountExport implements FromCollection, WithHeadings, WithMappi
             'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
         ]);
 
-        // 5. Baris 5: Header Tabel (Biru Navy, Garis Atas-Bawah)
+        // Baris 5: Header Tabel (Arial, Bold, 11pt, Biru Muda)
         $sheet->getStyle('A5:F5')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['argb' => 'FF000080']],
             'borders' => [
@@ -96,7 +96,7 @@ class LaporanCycleCountExport implements FromCollection, WithHeadings, WithMappi
             'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
         ]);
 
-        // 6. Logika Warna Selisih & Garis Pembatas Tipis Data
+        // Logika Warna Selisih & Garis Pembatas Tipis Data
         $highestRow = $sheet->getHighestRow();
         for ($i = 6; $i <= $highestRow; $i++) {
             $selisih = $sheet->getCell('E' . $i)->getValue(); 

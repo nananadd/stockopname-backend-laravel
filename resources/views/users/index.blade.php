@@ -181,21 +181,20 @@
 
         togglePasswordButtons.forEach(button => {
             button.addEventListener('click', function() {
-                // Cari tahu input mana yang jadi target tombol ini
                 const targetSelector = this.getAttribute('data-target');
                 const passwordInput = document.querySelector(targetSelector);
                 const icon = this.querySelector('i');
 
-                // Jika tipenya password, ubah ke text (tampilkan)
+                // Jika tipenya password
                 if (passwordInput.type === 'password') {
                     passwordInput.type = 'text';
                     icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash'); // Ganti ikon mata dicoret
+                    icon.classList.add('fa-eye-slash');
                 } else {
-                    // Jika tipenya text, kembalikan ke password (sembunyikan)
+                    // Jika text
                     passwordInput.type = 'password';
                     icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye'); // Ganti ikon mata normal
+                    icon.classList.add('fa-eye');
                 }
             });
         });

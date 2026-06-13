@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
 {
-    // Daftarkan kolom yang boleh diisi (mass assignable) saat Create/Update
     protected $fillable = [
         'sku',
         'name',

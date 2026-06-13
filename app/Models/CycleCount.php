@@ -33,7 +33,6 @@ class CycleCount extends Model
 
     public function counter()
     {
-        // Beri tahu Laravel: "Relasi counter ini nyambung ke model User 
         // menggunakan kolom 'counted_by' sebagai kunci asalnya."
         return $this->belongsTo(User::class, 'counted_by');
     }

@@ -257,7 +257,6 @@
 @endsection
 
 <style>
-    /* CSS Khusus untuk tombol Outline Sigma */
     .btn-outline-sigma {
         color: var(--sigma-magenta) !important;
         border: 1px solid var(--sigma-magenta) !important;

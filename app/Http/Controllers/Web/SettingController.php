@@ -11,14 +11,14 @@ class SettingController extends Controller
 {
     public function index()
     {
-        return view('settings.index'); // Kita akan buat file blade-nya
+        return view('settings.index');
     }
 
     public function updatePassword(Request $request)
     {
         $request->validate([
             'current_password' => 'required',
-            'new_password' => 'required|min:6|confirmed', // Pastikan input konfirmasi bernama new_password_confirmation
+            'new_password' => 'required|min:6|confirmed', 
         ]);
 
         $user = Auth::user();

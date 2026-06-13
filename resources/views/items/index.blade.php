@@ -3,29 +3,24 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     
-    <!-- Title -->
     <h3 class="fw-bold text-dark mb-0">
         <i class="fas fa-box-open text-primary me-2"></i>
         Data Barang
     </h3>
 
-    <!-- Action Buttons -->
     <div class="d-flex align-items-center gap-2 flex-wrap">
 
-        <!-- Tambah Barang -->
         <a href="{{ route('items.create') }}" class="btn btn-primary shadow-sm">
             <i class="fas fa-plus me-1"></i>
             Tambah Barang Baru
         </a>
 
-        <!-- Import Form -->
         <form action="{{ route('items.import') }}" 
               method="POST" 
               enctype="multipart/form-data"
               class="d-flex align-items-center gap-2">
             @csrf
 
-            <!-- Hidden File Input -->
             <input 
                 type="file" 
                 name="file_accurate"
@@ -36,7 +31,6 @@
                 onchange="updateFileName(this)"
             >
 
-            <!-- Attach Button -->
             <button type="button" 
                     class="btn btn-outline-success shadow-sm"
                     data-bs-toggle="modal" 
@@ -169,12 +163,10 @@
     </div>
 </div>
 
-<!-- Modal Import Excel -->
 <div class="modal fade" id="importExcelModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
 
-            <!-- Header -->
             <div class="modal-header">
                 <h5 class="modal-title fw-bold">
                     <i class="fas fa-file-excel text-success me-2"></i>
@@ -187,7 +179,6 @@
                 </button>
             </div>
 
-            <!-- Body -->
             <form action="{{ route('items.import') }}" 
                   method="POST" 
                   enctype="multipart/form-data">
@@ -211,7 +202,6 @@
 
                 </div>
 
-                <!-- Footer -->
                 <div class="modal-footer">
                     <button type="button" 
                             class="btn btn-light"

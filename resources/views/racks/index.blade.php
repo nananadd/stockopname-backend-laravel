@@ -42,6 +42,7 @@
                         <th class="ps-4">Kode Rak</th>
                         <th>Visual QR Code</th>
                         <th>Status Hitung</th>
+                        <th>Kategori</th>
                         <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -64,6 +65,11 @@
                             @else
                                 <span class="badge bg-success"><i class="fas fa-unlock me-1"></i> Tersedia</span>
                             @endif
+                        </td>
+                        <td>
+                            <span class="badge bg-black">
+                                {{ $rack->category }}
+                            </span>
                         </td>
                         <td class="text-center">
                             <a href="{{ route('racks.show', $rack->id) }}" class="btn btn-sm btn-outline-info me-1" title="Lihat & Cetak Label QR">
