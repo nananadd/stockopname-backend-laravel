@@ -36,9 +36,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('racks', RackController::class);
     Route::resource('items', ItemController::class);
 
-    // PELAKSANA LAPANGAN (Admin, Manager, Owner, Supervisor)
+    // PELAKSANA LAPANGAN (Admin,Supervisor)
     // Fitur Buat Jadwal, Approve Hasil Hitung, Request Recount
-    Route::middleware(['role:admin,supervisor,manager,owner'])->group(function () {
+    Route::middleware(['role:admin,supervisor'])->group(function () {
         Route::get('cycle/schedule', [CycleCountWebController::class, 'createSchedule'])->name('cycle.createSchedule');
         Route::post('cycle/schedule', [CycleCountWebController::class, 'storeSchedule'])->name('cycle.storeSchedule');
         Route::post('/cycle/generate-auto', [CycleCountWebController::class, 'runAutoGenerator'])->name('cycle.generate-auto');

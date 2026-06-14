@@ -6,21 +6,30 @@
         <i class="fas fa-clipboard-list text-primary me-2"></i>Daftar Laporan Cycle Count
     </h3>
     
-    <div class="d-flex align-items-center gap-2">
-        <a href="{{ route('cycle.createSchedule') }}" class="btn btn-primary shadow-sm fw-bold">
-            <i class="fas fa-calendar-plus me-1"></i> Buat Jadwal Staf
-        </a>
+    @if(in_array(auth()->user()->role_id, [1, 4]))
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('cycle.createSchedule') }}"
+            class="btn btn-primary shadow-sm fw-bold">
+                <i class="fas fa-calendar-plus me-1"></i>
+                Buat Jadwal Staf
+            </a>
 
-        <form action="{{ route('cycle.generate-auto') }}" method="POST" class="m-0">
-            @csrf
-            <button type="submit" class="btn btn-primary swal-confirm" 
-                data-swal-title="Buat Jadwal Otomatis?" 
-                data-swal-text="Sistem akan otomatis mengatur jadwal hitung hari ini." 
-                data-swal-icon="info">
-                <i class="bi bi-robot"></i> Buat Jadwal Otomatis
-            </button>
-        </form>
-    </div>
+            <form action="{{ route('cycle.generate-auto') }}"
+                method="POST"
+                class="m-0">
+                @csrf
+
+                <button type="submit"
+                        class="btn btn-primary swal-confirm"
+                        data-swal-title="Buat Jadwal Otomatis?"
+                        data-swal-text="Sistem akan otomatis mengatur jadwal hitung hari ini."
+                        data-swal-icon="info">
+                    <i class="bi bi-robot"></i>
+                    Buat Jadwal Otomatis
+                </button>
+            </form>
+        </div>
+    @endif
 </div>
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body bg-sigma-black text-white rounded">

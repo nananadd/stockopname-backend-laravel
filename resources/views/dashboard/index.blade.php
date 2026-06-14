@@ -87,14 +87,30 @@
                                 <td class="ps-4 fw-bold text-dark">{{ $cycle->rack->code ?? 'Rak Dihapus' }}</td>
                                 <td>{{ \Carbon\Carbon::parse($cycle->started_at)->format('d M Y, H:i') }}</td>
                                 <td>
-                                    @if($cycle->status == 'draft' || $cycle->status == 'submitted')
-                                        <span class="badge bg-warning text-dark">Menunggu Review</span>
+                                    @if($cycle->status == 'draft')
+                                        <span class="badge bg-secondary">
+                                            Proses Hitung
+                                        </span>
+
+                                    @elseif($cycle->status == 'submitted')
+                                        <span class="badge bg-warning text-dark">
+                                            Menunggu Review
+                                        </span>
+
                                     @elseif($cycle->status == 'reviewed')
-                                        <span class="badge bg-info text-dark">Direview</span>
+                                        <span class="badge bg-primary">
+                                            Direview
+                                        </span>
+
                                     @elseif($cycle->status == 'approved')
-                                        <span class="badge bg-success">Disetujui</span>
+                                        <span class="badge bg-success">
+                                            Disetujui
+                                        </span>
+
                                     @else
-                                        <span class="badge bg-secondary">{{ strtoupper($cycle->status) }}</span>
+                                        <span class="badge bg-dark">
+                                            {{ strtoupper($cycle->status) }}
+                                        </span>
                                     @endif
                                 </td>
                                 <td class="text-end pe-4">

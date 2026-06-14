@@ -91,6 +91,9 @@ class CycleCountWebController extends Controller
 
     public function createSchedule()
     {
+        if (!in_array(auth()->user()->role_id, [1, 4])) {
+            abort(403, 'Akses Ditolak');
+        }
         // Ambil rak yang tidak kekunci
         $racks = Rack::where('is_locked', 0)->orderBy('code', 'asc')->get();
         
