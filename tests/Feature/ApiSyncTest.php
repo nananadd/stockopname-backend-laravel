@@ -38,10 +38,10 @@ class ApiSyncTest extends TestCase
 
     public function test_endpoint_push_berhasil_menyimpan_data_dari_mobile()
     {
-        // 1. ARRANGE
+        // ARRANGE
         $user = User::factory()->create(['role_id' => 5]);
         
-        // MENGGUNAKAN JWT (Sama seperti Test 2)
+        // MENGGUNAKAN JWT
         $token = auth('api')->login($user); 
 
         // Buat data dummy agar dipastikan datanya ada saat diuji
@@ -73,22 +73,19 @@ class ApiSyncTest extends TestCase
             'started_at' => now()
         ]);
 
-        // 2. ACT: Simulasi aplikasi Flutter mengirim JSON hasil hitungan (Push Sync)
+        // ACT: Simulasi aplikasi Flutter mengirim JSON hasil hitungan (Push Sync)
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
             'Accept' => 'application/json',
         ])->postJson('/api/sync/push', [
             'cycle_counts' => [
                 [
-                    // Pastikan menyertakan ID jadwalnya
                     'id' => $cycle->id, 
                     
-                    // Kolom-kolom yang diminta oleh validasi Laravel
                     'rack_id' => $rack->id,
                     'started_at' => now()->toDateTimeString(),
                     'finished_at' => now()->toDateTimeString(),
                     
-                    // Data hitungan fisik masuk ke dalam array 'details'
                     'details' => [
                         [
                             'item_id' => $item->id,
@@ -99,7 +96,7 @@ class ApiSyncTest extends TestCase
             ]
         ]);
 
-        // 3. ASSERT: Server harus merespon berhasil
+        // ASSERT: Server harus merespon berhasil
         $response->assertStatus(200);
 
         // Memastikan data yang didorong dari mobile benar-benar masuk ke tabel detail
@@ -110,9 +107,3 @@ class ApiSyncTest extends TestCase
         ]);
     }
 }
-
-/* 
-✓ endpoint sync menolak akses tanpa token valid                                                                0.41s
-✓ endpoint sync mengembalikan data dengan token valid                                                          0.13s
-✓ endpoint push berhasil menyimpan data dari mobile                                                            0.10s
-*/

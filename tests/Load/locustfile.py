@@ -8,7 +8,6 @@ class StafGudang(HttpUser):
     token = ""
 
     def on_start(self):
-        # Header Accept sangat penting agar Laravel tahu ini aplikasi mobile/API
         headers = {
             "Accept": "application/json"
         }

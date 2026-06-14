@@ -15,14 +15,14 @@ class CycleCountLogicTest extends TestCase
 {
     use DatabaseTransactions; 
 
-    // 1. Skenario Sukses: Perhitungan Selisih (Kodingan lamamu)
+    // Skenario Sukses: Perhitungan Selisih
     public function test_perhitungan_selisih_stok_dan_snapshot_berjalan_benar()
     {
-        // 1. ARRANGE
-        $user = User::factory()->create(['role_id' => 4]);  // soalnya kalau staff (user 5) harus pakai HP
+        // ARRANGE
+        $user = User::factory()->create(['role_id' => 4]); 
         
         $warehouse = Warehouse::firstOrCreate(
-            ['code' => 'WH-TEST-A'], // Gunakan kode unik
+            ['code' => 'WH-TEST-A'],
             ['name' => 'Gudang Utama Uji Coba']
         );
         
@@ -49,7 +49,7 @@ class CycleCountLogicTest extends TestCase
             'started_at' => now()
         ]);
 
-        // 2. ACT
+        // ACT
         $this->withoutExceptionHandling();
 
         $response = $this->actingAs($user)->post(route('cycle.storeDetail', $cycle->id), [
@@ -58,7 +58,7 @@ class CycleCountLogicTest extends TestCase
             ]
         ]);
 
-        // 3. ASSERT
+        // ASSERT
         $response->assertStatus(302); 
 
         $this->assertDatabaseHas('cycle_count_details', [
@@ -70,10 +70,10 @@ class CycleCountLogicTest extends TestCase
         ]);
     }
 
-    // 2. Skenario Sukses: Approve Mengubah Stok (Kodingan lamamu)
+    // Skenario Sukses: Approve Mengubah Stok
     public function test_approve_cycle_count_mengubah_master_stok_dengan_benar()
     {
-        // 1. ARRANGE
+        // ARRANGE
         // Persetujuan (Approve) dilakukan oleh Supervisor
         $user = User::factory()->create(['role_id' => 4]); 
         
@@ -112,12 +112,12 @@ class CycleCountLogicTest extends TestCase
             'difference' => 10
         ]);
 
-        // 2. ACT
+        // ACT
         $this->withoutExceptionHandling();
 
         $this->actingAs($user)->post(route('cycle.approve', $cycle->id));
 
-        // 3. ASSERT
+        // ASSERT
         $this->assertDatabaseHas('cycle_counts', [
             'id' => $cycle->id,
             'status' => 'approved'
@@ -134,7 +134,7 @@ class CycleCountLogicTest extends TestCase
         ]);
     }
 
-    // 3. Skenario Keamanan (RBAC): Cegah Bypass Otorisasi
+    // Skenario Keamanan (RBAC)
     public function test_staf_gudang_ditolak_saat_mencoba_melakukan_approve()
     {
         // Setup Role & User
@@ -164,7 +164,7 @@ class CycleCountLogicTest extends TestCase
         ]);
     }
 
-    // 4. Skenario Fungsional: Logika Penolakan (Recount)
+    // Skenario Fungsional: Logika Penolakan (Recount)
     public function test_recount_mengembalikan_status_ke_draft_dan_menyimpan_catatan()
     {
         // Setup
@@ -197,7 +197,7 @@ class CycleCountLogicTest extends TestCase
         ]);
     }
 
-    // 5. Skenario Alur Bisnis: Penanganan Barang Nyasar (Lokasi Baru)
+    // Skenario Alur Bisnis: Penanganan Barang Nyasar (Lokasi Baru)
     public function test_approve_barang_nyasar_membuat_relasi_lokasi_baru_di_rak()
     {
         // Setup
@@ -236,10 +236,10 @@ class CycleCountLogicTest extends TestCase
         ]);
     }
 
-    // 6. Skenario Otomatisasi: Auto-Generator Berdasarkan Kehadiran Staf
+    // Skenario Otomatisasi: Auto-Generator Berdasarkan Kehadiran Staf
     public function test_generator_tugas_hanya_diberikan_kepada_staf_berstatus_hadir()
     {
-        // 1. Bersihkan staf lama dan antrean tugas agar tidak bentrok
+        // Bersihkan staf lama dan antrean tugas agar tidak bentrok
         \App\Models\User::where('role_id', 5)->delete(); 
         \App\Models\CycleCount::query()->delete(); 
         
@@ -249,7 +249,7 @@ class CycleCountLogicTest extends TestCase
         
         $roleStaff = \App\Models\Role::firstOrCreate(['id' => 5], ['name' => 'staff']);
 
-        // 2. Membuat 1 staf hadir dan 1 staf cuti
+        // Membuat 1 staf hadir dan 1 staf cuti
         $staffHadir = User::factory()->create(['role_id' => $roleStaff->id, 'is_present' => 1]);
         $staffCuti = User::factory()->create(['role_id' => $roleStaff->id, 'is_present' => 0]);
         
@@ -258,10 +258,10 @@ class CycleCountLogicTest extends TestCase
         // Membuat 1 rak baru yang BELUM pernah dihitung (last_counted_at = null)
         $rack = \App\Models\Rack::create(['warehouse_id' => $warehouse->id, 'code' => 'RAK-GEN', 'qr_code' => 'QR-GEN', 'category' => 'A', 'is_locked' => 0, 'last_counted_at' => null]);
 
-        // 3. ACT: Memicu perintah Cron Job pembuat jadwal otomatis
+        // ACT: Memicu perintah Cron Job pembuat jadwal otomatis
         $this->artisan('cyclecount:generate')->assertSuccessful();
 
-        // 4. ASSERT: Tugas dilempar ke staf yang hadir
+        // ASSERT: Tugas dilempar ke staf yang hadir
         $this->assertDatabaseHas('cycle_counts', [
             'rack_id' => $rack->id,
             'counted_by' => $staffHadir->id 
@@ -273,11 +273,3 @@ class CycleCountLogicTest extends TestCase
         ]);
     }
 }
-
-/* 
-
-1. Sistem berhasil mengunci data snapshot sehingga stok yang dihitung staf tidak akan kacau meskipun ada transaksi barang masuk/keluar di waktu yang sama.
-
-2. Perhitungan selisih berjalan akurat tanpa error.
-
-3. Tombol Approve dari manajer secara otomatis memperbarui Master Item, menghilangkan kebutuhan input manual yang memakan waktu 2 minggu itu! */

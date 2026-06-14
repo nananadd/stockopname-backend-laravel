@@ -16,17 +16,25 @@ class SyncController extends Controller
     {
         $racks = Rack::with('items')->get(); 
         $items = Item::all();
-        
+
         $myTasks = CycleCount::with('rack')
             ->where('counted_by', auth()->id())
             ->whereIn('status', ['draft', 'recount', 'submitted',])
             ->orderBy('scheduled_at', 'asc')
             ->get();
 
+        $myHistory = CycleCount::with('rack')
+            ->where('counted_by', auth()->id())
+            ->whereIn('status', ['submitted', 'reviewed', 'approved'])
+            ->orderBy('updated_at', 'desc')
+            ->limit(30)
+            ->get();
+
         return response()->json([
             'racks' => $racks,
             'items' => $items,
-            'my_tasks' => $myTasks, // Dikirim ke Flutter
+            'my_tasks' => $myTasks,
+            'my_history' => $myHistory
         ], 200);
     }
 
