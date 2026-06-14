@@ -22,6 +22,81 @@
         </form>
     </div>
 </div>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body bg-sigma-black text-white rounded">
+
+            <div class="row g-3 align-items-end">
+
+                <div class="col-md-8">
+                    <label class="form-label text-white-50 small">
+                        Pencarian
+                    </label>
+
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+
+                        <input type="text"
+                            id="searchInput"
+                            class="form-control border-0"
+                            placeholder="Cari Rak atau Nama Petugas..."
+                            value="{{ request('search') }}"
+                            autocomplete="off"
+                            oninput="debounceSearch()">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label text-white-50 small">
+                        Status
+                    </label>
+
+                    <select id="statusFilter"
+                            class="form-select border-0"
+                            onchange="executeSearch()">
+
+                        <option value="">Semua Status</option>
+
+                        <option value="draft"
+                            {{ request('status') == 'draft' ? 'selected' : '' }}>
+                            Proses Hitung
+                        </option>
+
+                        <option value="submitted"
+                            {{ request('status') == 'submitted' ? 'selected' : '' }}>
+                            Staff Submit
+                        </option>
+
+                        <option value="reviewed"
+                            {{ request('status') == 'reviewed' ? 'selected' : '' }}>
+                            Direview
+                        </option>
+
+                        <option value="approved"
+                            {{ request('status') == 'approved' ? 'selected' : '' }}>
+                            Disetujui
+                        </option>
+
+                        <option value="recount"
+                            {{ request('status') == 'recount' ? 'selected' : '' }}>
+                            Recount
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="col-md-1 text-center">
+                    <a href="{{ route('cycle.index') }}"
+                    class="btn btn-outline-light w-100">
+                        <i class="fas fa-sync-alt"></i>
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
 
 <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
@@ -38,7 +113,7 @@
                         <th class="text-end pe-4">Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="cycle-table-body">
                     @forelse($cycles as $cycle)
                     <tr>
                         <td class="ps-4 fw-bold text-muted">#CC-{{ str_pad($cycle->id, 4, '0', STR_PAD_LEFT) }}</td>
@@ -113,9 +188,65 @@
     </div>
     
     @if($cycles instanceof \Illuminate\Pagination\LengthAwarePaginator)
-    <div class="card-footer bg-white py-3">
+    <div id="pagination-container" class="card-footer bg-white py-3">
         {{ $cycles->links('pagination::bootstrap-5') }}
     </div>
     @endif
+    
 </div>
+
+<script>
+    let typingTimer;
+
+    function debounceSearch() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(executeSearch, 300);
+    }
+
+    function executeSearch() {
+        const search = document.getElementById('searchInput').value;
+        const status = document.getElementById('statusFilter').value;
+        const params = new URLSearchParams();
+
+        if(search)
+            params.append('search', search);
+
+        if(status)
+            params.append('status', status);
+
+        loadTableData(
+            `{{ route('cycle.index') }}?${params.toString()}`
+        );
+    }
+
+    function loadTableData(url) {
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+
+            const parser = new DOMParser();
+
+            const doc = parser.parseFromString(html, 'text/html');
+
+            document.getElementById('cycle-table-body').innerHTML = doc.getElementById('cycle-table-body').innerHTML;
+
+            document.getElementById('pagination-container').innerHTML = doc.getElementById('pagination-container').innerHTML;
+
+            window.history.pushState({}, '', url);
+        });
+    }
+
+    document.addEventListener('click', function(e){
+        const link = e.target.closest('.pagination a');
+
+        if(link){
+            e.preventDefault();
+            loadTableData(link.href);
+        }
+    });
+</script>
 @endsection

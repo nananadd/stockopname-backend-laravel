@@ -17,20 +17,27 @@
                 <form action="{{ route('racks.store') }}" method="POST">
                     @csrf
                     
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Lokasi Gudang <span class="text-danger">*</span></label>
-                        <select name="warehouse_id" id="warehouseSelect"class="form-select @error('warehouse_id') is-invalid @enderror" required>
-                            <option value="">-- Pilih Gudang Lokasi Rak --</option>
-                            @foreach($warehouses as $warehouse)
-                                <option value="{{ $warehouse->id }}" {{ old('warehouse_id') == $warehouse->id ? 'selected' : '' }}>
-                                    {{ $warehouse->name }}
+                    @if($warehouses->count() == 1)
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Lokasi Gudang</label>
+                            <input type="text" class="form-control" value="{{ $warehouses->first()->name }}" readonly>
+                            <input type="hidden" name="warehouse_id" value="{{ $warehouses->first()->id }}">
+                        </div>
+                    @else
+                        <div class="mb-4">
+                            <label class="form-label fw-bold"> Lokasi Gudang</label>
+                            <select name="warehouse_id" class="form-select" required>
+                                <option value="">
+                                    -- Pilih Gudang --
                                 </option>
-                            @endforeach
-                        </select>
-                        @error('warehouse_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                                @foreach($warehouses as $warehouse)
+                                    <option value="{{ $warehouse->id }}">
+                                        {{ $warehouse->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
 
                     <div class="mb-4">
                         <label class="form-label fw-bold">Kode Rak <span class="text-danger">*</span></label>

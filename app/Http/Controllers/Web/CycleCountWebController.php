@@ -21,21 +21,57 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class CycleCountWebController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // dd($request->all());
         $user = auth()->user();
 
-        // Jika yang login adalah STAFF, hanya tampilkan tugas yang di-assign ke dia
         if ($user->role_id == 5) {
-            $cycles = CycleCount::with('rack')
-                ->where('counted_by', $user->id)
+
+            $query = CycleCount::with('rack')
+                ->where('counted_by', $user->id);
+
+            if ($request->filled('search')) {
+                $search = $request->search;
+
+                $query->whereHas('rack', function ($q) use ($search) {
+                    $q->where('code', 'like', "%{$search}%");
+                });
+            }
+
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            $cycles = $query
                 ->orderBy('scheduled_at', 'asc')
-                ->paginate(10);
+                ->paginate(10)
+                ->withQueryString();
+
         } else {
-            // Jika Manager (3) atau Supervisor (4)
-            $cycles = CycleCount::with(['rack', 'counter'])
-                ->latest('started_at') 
-                ->paginate(10);
+
+            $query = CycleCount::with(['rack', 'counter']);
+
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('rack', function ($rack) use ($search) {
+                        $rack->where('code', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('counter', function ($user) use ($search) {
+                        $user->where('name', 'like', "%{$search}%");
+                    });
+                });
+            }
+
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            $cycles = $query
+                ->latest('started_at')
+                ->paginate(10)
+                ->withQueryString();
         }
 
         return view('cycle.index', compact('cycles'));

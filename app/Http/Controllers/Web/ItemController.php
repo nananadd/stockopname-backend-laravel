@@ -33,10 +33,15 @@ class ItemController extends Controller
             });
         }
 
-        $items = $query->latest()->paginate(15)->withQueryString();
-        $racks = \App\Models\Rack::orderBy('code', 'asc')->get();
+        if ($request->filled('unit')) {
+            $query->where('unit', $request->unit);
+        }
 
-        return view('items.index', compact('items', 'racks'));
+        $items = $query->latest()->paginate(15)->withQueryString();
+        $racks = Rack::orderBy('code')->get();
+        $units = Item::select('unit')->distinct()->orderBy('unit')->pluck('unit');
+
+        return view('items.index', compact('items', 'racks', 'units'));
     }
 
     // CRUD
@@ -121,23 +126,5 @@ class ItemController extends Controller
     {
         $item->delete();
         return redirect()->route('items.index')->with('success', 'Data Barang berhasil dihapus!');
-    }
-
-    public function sync()
-    {
-        try {
-            
-            // catat ke log aktivitas Admin
-            \App\Models\ActivityLog::create([
-                'user_id' => auth()->id(),
-                'action' => 'Sync Accurate',
-                'description' => 'Melakukan sinkronisasi master data barang dari Accurate Online.'
-            ]);
-
-            return redirect()->back()->with('success', 'Master data barang berhasil disinkronisasi dari Accurate Online!');
-            
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal melakukan sinkronisasi: ' . $e->getMessage());
-        }
     }
 }

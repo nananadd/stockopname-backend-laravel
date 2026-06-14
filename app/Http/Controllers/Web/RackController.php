@@ -14,14 +14,27 @@ class RackController extends Controller
     {
         $query = Rack::query();
 
-        // FITUR SEARCH: Mencari berdasarkan kode rak atau QR code
+        // Mencari berdasarkan kode rak atau QR code
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where('code', 'like', "%{$search}%")
+            // Agar tidak merusak filter lain
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
                   ->orWhere('qr_code', 'like', "%{$search}%");
+            });
         }
 
-        // Tampilkan 10 data per halaman (Pagination) dan bawa parameter URL pencariannya
+        // Filter Kategori A, B, atau C
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        // Filter status terbuka (0) atau Terkunci (1)
+        if ($request->filled('is_locked')) {
+            $query->where('is_locked', $request->is_locked);
+        }
+
+        // Tampilkan 10 data per halaman dan bawa parameter URL pencariannya
         $racks = $query->latest()->paginate(10)->withQueryString();
 
         return view('racks.index', compact('racks'));
@@ -30,10 +43,9 @@ class RackController extends Controller
     // CRUD
     public function create()
     {
-        // Ambil semua data gudang dari database
+        // Ambil data gudang dari database
         $warehouses = Warehouse::orderBy('name', 'asc')->get();
         
-        // Lempar variabel $warehouses ke tampilan (Blade)
         return view('racks.create', compact('warehouses'));
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Warehouse;
 
 class WarehouseController extends Controller
 {
@@ -12,7 +13,9 @@ class WarehouseController extends Controller
      */
     public function index()
     {
-        //
+        $warehouses = Warehouse::latest()->paginate(10);
+
+        return view('warehouses.index', compact('warehouses'));
     }
 
     /**

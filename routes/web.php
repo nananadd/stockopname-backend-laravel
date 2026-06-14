@@ -57,7 +57,6 @@ Route::middleware(['auth'])->group(function () {
         
         // Import Data & Laporan
         Route::post('/items/import', [ItemController::class, 'import'])->name('items.import');
-        Route::post('/items/sync', [ItemController::class, 'sync'])->name('items.sync');
         Route::post('cycle/{id}/review', [CycleCountWebController::class, 'review'])->name('cycle.review');
         Route::get('/cycle/{id}/export-accurate', [CycleCountWebController::class, 'exportAccurate'])->name('cycle.export.accurate');
         Route::get('cycle/{id}/pdf', [CycleCountWebController::class, 'exportPdf'])->name('cycle.pdf');

@@ -17,10 +17,9 @@ class SyncController extends Controller
         $racks = Rack::with('items')->get(); 
         $items = Item::all();
         
-        // Tarik tugas jadwal khusus untuk Staf yang sedang login
         $myTasks = CycleCount::with('rack')
             ->where('counted_by', auth()->id())
-            ->whereIn('status', ['draft','recount']) // Hanya tarik yang belum dikerjakan
+            ->whereIn('status', ['draft', 'recount', 'submitted',])
             ->orderBy('scheduled_at', 'asc')
             ->get();
 
@@ -47,7 +46,6 @@ class SyncController extends Controller
             // CARI DOKUMEN LAMA (Draft ATAU Recount)
             $cycle = CycleCount::where('rack_id', $cycleData['rack_id'])
                                ->where('counted_by', auth()->id())
-                               // pake whereIn() karena statusnya bisa draft atau recount
                                ->whereIn('status', ['draft', 'recount']) 
                                ->first();
 
@@ -74,7 +72,7 @@ class SyncController extends Controller
                 $item = Item::find($detail['item_id']);
                 
                 // updateOrCreate akan menimpa (menumpuk) hasil stok fisik lama
-                // jika ID Laporan dan ID Barangnya cocok.
+                // jika ID Laporan dan ID Barangnya cocok. pake data snapshot sistem.
                 CycleCountDetail::updateOrCreate(
                     [
                         'cycle_count_id' => $cycle->id,

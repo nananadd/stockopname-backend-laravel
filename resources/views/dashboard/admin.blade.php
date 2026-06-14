@@ -81,21 +81,22 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                         <div class="d-flex align-items-center">
-                            <div class="p-3 bg-light rounded-circle me-3 text-primary">
-                                <i class="fas fa-sync-alt fa-2x"></i>
+                            <div class="p-3 bg-light rounded-circle me-3 text-success">
+                                <i class="fas fa-file-excel fa-2x"></i>
                             </div>
                             <div>
-                                <h5 class="fw-bold mb-1">Integrasi Accurate Online</h5>
+                                <h5 class="fw-bold mb-1">Import Data Accurate Online</h5>
                                 <p class="text-muted small mb-0">
-                                    Status sinkronisasi master data barang terakhir: 
-                                    <span class="fw-bold text-dark">{{ $lastSync ?? 'Belum pernah disinkronkan' }}</span>
+                                    Unggah file Excel (.xlsx, .csv) untuk memperbarui Master Data Barang.
                                 </p>
                             </div>
                         </div>
-                        <form action="{{ route('items.sync') }}" method="POST" class="m-0">
+                        
+                        <form action="{{ route('items.import') }}" method="POST" enctype="multipart/form-data" class="m-0 d-flex gap-2">
                             @csrf
-                            <button type="submit" class="btn btn-primary shadow-sm fw-bold px-4 py-2" onclick="return confirm('Mulai sinkronisasi master data barang dari Accurate Online?')">
-                                <i class="fas fa-cloud-download-alt me-2"></i>Sinkronkan Sekarang
+                            <input type="file" name="file_accurate" class="form-control" accept=".xlsx, .xls, .csv" required>
+                            <button type="button" class="btn btn-success shadow-sm fw-bold text-nowrap" onclick="confirmImport(event)">
+                                <i class="fas fa-upload me-2"></i> Upload & Import
                             </button>
                         </form>
                     </div>
@@ -144,7 +145,8 @@
                                                     <i class="fas fa-exclamation-circle me-1"></i>{{ $log->action }}
                                                 </span>
                                             @else
-                                                <span class="badge bg-light text-secondary border px-2 py-1">
+                                                <span class="badge bg-light text-dark border border-dark px-2 py-1">
+                                                    <i class="fas fa-info-circle me-1"></i>
                                                     {{ $log->action }}
                                                 </span>
                                             @endif
@@ -232,4 +234,55 @@
         transform: translateY(-2px);
     }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmImport(event) {
+        event.preventDefault();
+        
+        // Mengambil elemen form terdekat dari tombol yang diklik
+        let form = event.target.closest('form');
+        
+        // Validasi: Cek apakah user sudah memilih file atau belum
+        let fileInput = form.querySelector('input[type="file"]');
+        if (fileInput.files.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'File Kosong',
+                text: 'Harap pilih file Excel dari Accurate terlebih dahulu!',
+                confirmButtonColor: '#28a745'
+            });
+            return; // Hentikan proses jika tidak ada file
+        }
+
+        // Munculkan SweetAlert Konfirmasi
+        Swal.fire({
+            title: 'Yakin ingin import data?',
+            text: "Sistem akan memperbarui Master Barang (Upsert) berdasarkan file Excel ini. Susunan rak tidak akan terhapus.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Import Sekarang!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Munculkan SweetAlert Loading saat form disubmit
+                Swal.fire({
+                    title: 'Memproses Data...',
+                    text: 'Mohon tunggu beberapa detik, jangan tutup halaman ini.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Submit form secara nyata ke controller
+                form.submit();
+            }
+        });
+    }
+</script>
 @endsection
