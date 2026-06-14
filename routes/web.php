@@ -36,6 +36,21 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('racks', RackController::class);
     Route::resource('items', ItemController::class);
 
+    // PELAKSANA LAPANGAN (Admin, Manager, Owner, Supervisor)
+    // Fitur Buat Jadwal, Approve Hasil Hitung, Request Recount
+    Route::middleware(['role:admin,supervisor,manager,owner'])->group(function () {
+        Route::get('cycle/schedule', [CycleCountWebController::class, 'createSchedule'])->name('cycle.createSchedule');
+        Route::post('cycle/schedule', [CycleCountWebController::class, 'storeSchedule'])->name('cycle.storeSchedule');
+        Route::post('/cycle/generate-auto', [CycleCountWebController::class, 'runAutoGenerator'])->name('cycle.generate-auto');
+        
+        // Aksi spesifik pada Cycle Count
+        Route::post('cycle/{id}/sync', [CycleCountWebController::class, 'syncItems'])->name('cycle.sync');
+        Route::post('cycle/{id}/store-detail', [CycleCountWebController::class, 'storeDetail'])->name('cycle.storeDetail');
+        Route::post('cycle/recount/{id}', [CycleCountWebController::class, 'requestRecount'])->name('cycle.recount');
+        Route::post('cycle/{id}/approve', [CycleCountWebController::class, 'approve'])->name('cycle.approve');
+        Route::delete('cycle/{id}', [CycleCountWebController::class, 'destroy'])->name('cycle.destroy');
+    });
+
     //OPERASIONAL (Admin, Manager, Owner, Supervisor)
     Route::middleware(['role:admin,manager,owner,supervisor'])->group(function () {
         // Manajemen Kehadiran (Semua bisa lihat tabel dan ubah status hadir)
@@ -61,20 +76,5 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/cycle/{id}/export-accurate', [CycleCountWebController::class, 'exportAccurate'])->name('cycle.export.accurate');
         Route::get('cycle/{id}/pdf', [CycleCountWebController::class, 'exportPdf'])->name('cycle.pdf');
         Route::get('/cycle/{id}/export-excel-laporan', [CycleCountWebController::class, 'exportExcelLaporan'])->name('cycle.export.excel');
-    });
-
-    // PELAKSANA LAPANGAN (Admin & Supervisor)
-    // Fitur Buat Jadwal, Approve Hasil Hitung, Request Recount
-    Route::middleware(['role:admin,supervisor'])->group(function () {
-        Route::get('cycle/schedule', [CycleCountWebController::class, 'createSchedule'])->name('cycle.createSchedule');
-        Route::post('cycle/schedule', [CycleCountWebController::class, 'storeSchedule'])->name('cycle.storeSchedule');
-        Route::post('/cycle/generate-auto', [CycleCountWebController::class, 'runAutoGenerator'])->name('cycle.generate-auto');
-        
-        // Aksi spesifik pada Cycle Count
-        Route::post('cycle/{id}/sync', [CycleCountWebController::class, 'syncItems'])->name('cycle.sync');
-        Route::post('cycle/{id}/store-detail', [CycleCountWebController::class, 'storeDetail'])->name('cycle.storeDetail');
-        Route::post('cycle/recount/{id}', [CycleCountWebController::class, 'requestRecount'])->name('cycle.recount');
-        Route::post('cycle/{id}/approve', [CycleCountWebController::class, 'approve'])->name('cycle.approve');
-        Route::delete('cycle/{id}', [CycleCountWebController::class, 'destroy'])->name('cycle.destroy');
     });
 });

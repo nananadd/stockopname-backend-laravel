@@ -82,12 +82,16 @@ class CycleCountWebController extends Controller
         $cycle = CycleCount::with(['rack', 'details.item'])
             ->findOrFail($id);
 
-        return view('cycle.show', compact('cycle'));
+         $details = CycleCountDetail::with('item')
+        ->where('cycle_count_id', $id)
+        ->paginate(15);
+
+        return view('cycle.show', compact('cycle', 'details'));
     }
 
     public function createSchedule()
     {
-        // Ambil semua rak (baik yang terkunci maupun tidak, karena ini untuk jadwal masa depan)
+        // Ambil rak yang tidak kekunci
         $racks = Rack::where('is_locked', 0)->orderBy('code', 'asc')->get();
         
         // Ambil user yang rolenya 'staff'
@@ -126,14 +130,16 @@ class CycleCountWebController extends Controller
     {
         $cycle = CycleCount::findOrFail($id);
 
-        // dd(($request->all()));
         foreach ($request->physical_stock as $itemId => $physical) {
 
-            $physical = $physical ? (int)$physical : 0; //biar ga null
+            $physical = $physical ? (int)$physical : 0; 
+            
+            $rackStock = DB::table('item_rack')
+                ->where('rack_id', $cycle->rack_id)
+                ->where('item_id', $itemId)
+                ->value('stock_at_location') ?? 0;
 
-            $item = Item::findOrFail($itemId);
-
-            $difference = $physical - $item->system_stock;
+            $difference = $physical - $rackStock;
 
             CycleCountDetail::updateOrCreate(
                 [
@@ -141,7 +147,7 @@ class CycleCountWebController extends Controller
                     'item_id' => $itemId
                 ],
                 [
-                    'system_stock_snapshot' => $item->system_stock,
+                    'system_stock_snapshot' => $rackStock,
                     'physical_stock' => $physical,
                     'difference' => $difference
                 ]
@@ -179,77 +185,58 @@ class CycleCountWebController extends Controller
 
     public function approve($id)
     {
-        // Ambil data cycle beserta detail barang dan raknya
         $cycle = CycleCount::with(['details.item', 'rack'])->findOrFail($id);
 
-        // dd($cycle->details->toArray());
-        // Ubah status laporan
         $cycle->status = 'approved';
-        $cycle->approved_by = auth()->id(); // Catat ID supervisor
+        $cycle->approved_by = auth()->id();
         $cycle->save();
 
-        // MESIN UPDATE STOK OTOMATIS
         foreach ($cycle->details as $detail) {
             $item = $detail->item;
-            
+
             if ($item) {
-                // Update Master Stok (Sistem Inventory Pusat)
-                $item->system_stock = ($item->system_stock - $detail->system_stock_snapshot) + $detail->physical_stock;
-                $item->save();
-
-                // LOGIKA PINDAH RAK (DEDICATED LOCATION)
                 if ($detail->physical_stock == 0) {
-                    // Jika staf melaporkan barang ini habis (0), hapus relasinya dari tabel 
-                    // agar database item_rack tidak dipenuhi oleh baris berangka 0.
-                    DB::table('item_rack')->where('item_id', $item->id)->delete();
+                    // Staf lapor kosong, hapus baris di rak tersebut
+                    DB::table('item_rack')
+                        ->where('item_id', $item->id)
+                        ->where('rack_id', $cycle->rack_id)
+                        ->delete();
                 } else {
-                    // Cek apakah barang ini sebelumnya sudah punya rumah (di rak manapun)
-                    $punyaRumahLama = DB::table('item_rack')->where('item_id', $item->id)->exists();
-
-                    if ($punyaRumahLama) {
-                        // temukan datanya, lalu TIMPA 'rack_id' lamanya dengan 'rack_id' yang baru
-                        // Jadi datanya tidak double, melainkan resmi pindah rak.
-                        DB::table('item_rack')
-                            ->where('item_id', $item->id)
-                            ->update([
-                                'rack_id' => $cycle->rack_id, 
-                                'stock_at_location' => $detail->physical_stock,
-                                'updated_at' => now(),
-                            ]);
-                    } else {
-                        // KASUS BARANG BARU: Belum pernah masuk rak manapun sebelumnya
-                        DB::table('item_rack')->insert([
-                            'rack_id' => $cycle->rack_id,
-                            'item_id' => $item->id,
-                            'stock_at_location' => $detail->physical_stock,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                    }
+                    // Staf lapor ada isinya (bisa update jumlah, atau barang nyasar baru masuk)
+                    DB::table('item_rack')->updateOrInsert(
+                        ['item_id' => $item->id, 'rack_id' => $cycle->rack_id],
+                        ['stock_at_location' => $detail->physical_stock, 'updated_at' => now()]
+                    );
                 }
+
+                // Kalkulasi Ulang Master System Stock Berdasarkan Penjumlahan di Rak (SUM)
+                $totalRealStock = DB::table('item_rack')
+                                    ->where('item_id', $item->id)
+                                    ->sum('stock_at_location');
+                
+                $item->update(['system_stock' => $totalRealStock]);
             }
         }
 
-        // URUSAN RAK: BUKA GEMBOK & RESET JADWAL (Tempat yang Benar)
+        // buka lock
         if ($cycle->rack) {
             $cycle->rack->update([
                 'is_locked' => 0,
-                'last_counted_at' => now(),  // Kasi tau Cron Job bahwa rak ini baru saja dihitung
+                'last_counted_at' => now(),  
             ]);
         }
 
-        // Catat ke log aktivitas
         ActivityLog::create([
             'user_id' => auth()->id(),
             'action' => 'approve_cycle_count',
-            'description' => "Supervisor menyetujui hitungan Rak {$cycle->rack->code}. Relasi barang nyasar otomatis dibuat jika ada."
+            'description' => "Supervisor menyetujui hitungan Rak {$cycle->rack->code}."
         ]);
 
         return redirect()->route('cycle.index')
-            ->with('success', 'Laporan disetujui! Database rak dan stok telah diperbarui (termasuk barang nyasar).');
+            ->with('success', 'Laporan disetujui! Database rak dan master stok telah diperbarui.');
     }
 
-// MESIN EXPORT DATA KE ACCURATE ONLINE
+    // MESIN EXPORT DATA KE ACCURATE ONLINE
     public function exportAccurate($id)
     {
         $cycle = CycleCount::with(['details.item', 'rack'])->findOrFail($id);
@@ -339,7 +326,6 @@ class CycleCountWebController extends Controller
             // Memanggil command 'cyclecount:generate'
             Artisan::call('cyclecount:generate');
             
-            // Ambil pesan output dari command tersebut (opsional)
             $output = Artisan::output();
 
             return redirect()->back()->with('success', 'Berhasil menjalankan generator! ' . $output);

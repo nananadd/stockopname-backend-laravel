@@ -213,9 +213,10 @@
                 </button>
             </div>
 
-            <form action="{{ route('items.import') }}" 
-                  method="POST" 
-                  enctype="multipart/form-data">
+            <form   id="importForm"
+                    action="{{ route('items.import') }}" 
+                    method="POST" 
+                    enctype="multipart/form-data">
                 @csrf
 
                 <div class="modal-body">
@@ -244,7 +245,8 @@
                     </button>
 
                     <button type="submit" 
-                            class="btn btn-success">
+                            class="btn btn-success"
+                            onclick="confirmImport()">
                         <i class="fas fa-file-import me-1"></i>
                         Import
                     </button>
@@ -364,6 +366,23 @@ function initSelect2() {
 document.addEventListener("DOMContentLoaded", function () {
     initSelect2();
 });
+
+function confirmImport() {
+    Swal.fire({
+        title: 'Import Data?',
+        text: 'Data dari file akan diproses.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#198754',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Import!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('importForm').submit();
+        }
+    });
+}
 </script>
 
 @endsection

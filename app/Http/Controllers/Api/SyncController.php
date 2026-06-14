@@ -19,7 +19,7 @@ class SyncController extends Controller
 
         $myTasks = CycleCount::with('rack')
             ->where('counted_by', auth()->id())
-            ->whereIn('status', ['draft', 'recount', 'submitted',])
+            ->whereIn('status', ['draft', 'recount',])
             ->orderBy('scheduled_at', 'asc')
             ->get();
 
@@ -94,7 +94,9 @@ class SyncController extends Controller
                 );
             }
         }
-
+        
         return response()->json(['message' => 'Sync successful'], 200);
     }
+
+
 }

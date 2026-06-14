@@ -79,9 +79,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($cycle->details as $detail)
+                            @forelse ($details as $detail)
                                 @php
-                                    // LOGIKA SELISIH (difference) dari DB
                                     $selisih = $detail->difference; 
                                     
                                     $badgeClass = 'badge-sigma-success';
@@ -112,15 +111,18 @@
                                 </tr>
                             @endforelse
                         </tbody>
-                        @if($cycle->details->count() > 0)
+                        @if($details->count() > 0)
                         <tfoot class="table-light fw-bold text-end">
                             <tr>
                                 <th colspan="3">Total Selisih Rak</th>
-                                <th class="text-center fs-5 text-primary">{{ $cycle->details->sum('difference') }}</th>
+                                <th class="text-center fs-5 text-primary">{{ $details->sum('difference') }}</th>
                             </tr>
                         </tfoot>
                         @endif
                     </table>
+                    <div class="p-3">
+                        {{ $details->links('pagination::bootstrap-5') }}
+                    </div>
                     <div class="card mt-4 border-0 shadow-sm">
                         <div class="card-header bg-white">
                             <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-shield-alt text-primary me-2"></i>Otorisasi & Tindakan</h5>

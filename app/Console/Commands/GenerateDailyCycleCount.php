@@ -5,18 +5,18 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Rack;
 use App\Models\CycleCount;
+use App\Models\CycleCountDetail;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class GenerateDailyCycleCount extends Command
 {
-    // Ini nama perintah yang akan panggil di terminal
     protected $signature = 'cyclecount:generate';
     protected $description = 'Otomatis membuat jadwal Cycle Count harian berdasarkan kategori ABC';
 
     public function handle()
     {
-        // Ambil SEMUA staf gudang yang aktif
         $staffs = User::where('role_id', 5)
                       ->where('is_present', 1)
                       ->get();
@@ -30,69 +30,76 @@ class GenerateDailyCycleCount extends Command
         $staffIndex = 0; 
         $tasksCreated = 0;
 
-        // LOGIKA RASIO PT SIGMA BERKAT SEJATI (Total 50 Rak, 10 Staf)
-        // Beban kerja sangat ringan: 2 Rak per staf per hari.
-        // Kuota harian otomatis menjadi 20 tugas per hari.
         $racksPerStaff = 2; 
         $dailyQuota = $staffCount * $racksPerStaff; 
 
-        // ALGORITMA LEAST RECENTLY COUNTED
-        // Ambil semua rak, urutkan dari yang BELUM PERNAH dihitung (NULL), 
-        // lalu urutkan dari tanggal paling lama.
-        $racks = Rack::orderByRaw('ISNULL(last_counted_at) DESC')
+        // filter rak yang TIDAK TERKUNCI agar lebih efisien
+        $racks = Rack::where('is_locked', 0)
+                     ->orderByRaw('ISNULL(last_counted_at) DESC')
                      ->orderBy('last_counted_at', 'asc')
                      ->get();
 
         foreach ($racks as $rack) {
-            // Jika hari ini sudah bikin jadwal sesuai kuota (20 rak), STOP.
             if ($tasksCreated >= $dailyQuota) {
                 break; 
             }
 
             $needsCounting = false;
             
-            // Jika belum pernah dihitung sama sekali, WAJIB dihitung
             if (is_null($rack->last_counted_at)) {
                 $needsCounting = true;
             } else {
-                // Hitung selisih hari sejak terakhir dihitung
                 $daysSinceLastCount = Carbon::parse($rack->last_counted_at)->diffInDays(now());
 
-                // ATURAN ANALISIS ABC
-                // Kategori A: Dihitung jika sudah lewat 30 hari
-                // Kategori B: Dihitung jika sudah lewat 90 hari
-                // Kategori C: Dihitung jika sudah lewat 180 hari
                 if ($rack->category == 'A' && $daysSinceLastCount >= 30) $needsCounting = true;
                 if ($rack->category == 'B' && $daysSinceLastCount >= 90) $needsCounting = true;
                 if ($rack->category == 'C' && $daysSinceLastCount >= 180) $needsCounting = true;
             }
 
-            // Jika rak ini jatuh tempo, buatkan jadwalnya
             if ($needsCounting) {
-                // Cek agar tidak membuat jadwal double jika draf sebelumnya belum dikerjakan
                 $existingDraft = CycleCount::where('rack_id', $rack->id)
                                            ->whereIn('status', ['draft', 'recount'])
                                            ->exists();
 
                 if (!$existingDraft) {
-                    CycleCount::create([
-                        'rack_id' => $rack->id,
-                        'status' => 'draft',
-                        // Membagi tugas bergiliran ke staf: Staf 1, Staf 2, Staf 3, kembali ke Staf 1
-                        'counted_by' => $staffs[$staffIndex]->id, 
-                        'scheduled_at' => now(),
-                    ]);
+                    // Gunakan DB Transaction agar pembuatan jadwal dan snapshot tidak terputus
+                    DB::transaction(function () use ($rack, $staffs, &$staffIndex, &$tasksCreated, $staffCount) {
+                        
+                        // BUAT HEADER JADWAL
+                        $cycleCount = CycleCount::create([
+                            'rack_id' => $rack->id,
+                            'status' => 'draft',
+                            'counted_by' => $staffs[$staffIndex]->id, 
+                            'scheduled_at' => now(),
+                        ]);
 
-                    // Kunci rak
-                    $rack->update(['is_locked' => 1]);
+                        // Ambil semua barang yang SAH/SUDAH DIALOKASIKAN ke rak ini
+                        $itemsInRack = DB::table('item_rack')
+                                         ->where('rack_id', $rack->id)
+                                         ->where('stock_at_location', '>', 0)
+                                         ->get();
 
-                    $tasksCreated++;
-                    // Pindah ke staf berikutnya
-                    $staffIndex = ($staffIndex + 1) % $staffCount; 
+                        foreach ($itemsInRack as $item) {
+                            // Simpan ke tabel detail opname sebagai 'System Stock' 
+                            CycleCountDetail::create([
+                                'cycle_count_id'        => $cycleCount->id,
+                                'item_id'               => $item->item_id,
+                                'system_stock_snapshot' => $item->stock_at_location,
+                                'physical_stock'        => 0,
+                                'difference'            => 0 - $item->stock_at_location,
+                            ]);
+                        }
+
+                        // KUNCI RAK
+                        $rack->update(['is_locked' => 1]);
+
+                        $tasksCreated++;
+                        $staffIndex = ($staffIndex + 1) % $staffCount; 
+                    });
                 }
             }
         }
 
-        $this->info("Berhasil membuat $tasksCreated jadwal Cycle Count harian baru!");
+        $this->info("Berhasil membuat $tasksCreated jadwal Cycle Count harian baru beserta data Snapshot!");
     }
 }

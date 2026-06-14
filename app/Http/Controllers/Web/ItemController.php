@@ -16,7 +16,7 @@ class ItemController extends Controller
         // UBAH 'rack' menjadi 'racks' sesuai nama fungsi di Model
         $query = Item::with('racks'); 
 
-        // FITUR SEARCH: Mencari berdasarkan Nama Barang atau SKU
+        // search berdasarkan Nama Barang atau SKU
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -25,9 +25,8 @@ class ItemController extends Controller
             });
         }
 
-        // FITUR FILTER: Menyaring barang berdasarkan Lokasi Rak tertentu
+        // filter barang berdasarkan Lokasi Rak tertentu
         if ($request->filled('rack_id')) {
-            // UBAH whereHas menjadi 'racks'
             $query->whereHas('racks', function($q) use ($request) {
                 $q->where('racks.id', $request->rack_id); 
             });
@@ -91,10 +90,8 @@ class ItemController extends Controller
 
         // Sinkronisasi rak di tabel pivot
         if ($request->filled('rack_id')) {
-            // sync() akan otomatis menghapus rak lama dan menggantinya dengan rak baru
             $item->racks()->sync([$request->rack_id]);
         } else {
-            // Jika dropdown dikosongkan, hapus semua relasi rak untuk barang ini
             $item->racks()->detach();
         }
 
@@ -105,18 +102,16 @@ class ItemController extends Controller
     {
         // Validasi file yang diunggah
         $request->validate([
-            'file_accurate' => 'required|mimes:xlsx,xls,csv|max:10240', // Max 10MB
+            'file_accurate' => 'required|mimes:xlsx,xls,csv|max:10240',
         ]);
 
-        try {
-            // Eksekusi proses import menggunakan class ItemsImport yang kita buat sebelumnya
-            Excel::import(new ItemsImport, $request->file('file_accurate'));
+        ini_set('max_execution_time', 300);
 
-            // Return dengan pesan sukses
+        try {
+            Excel::import(new ItemsImport, $request->file('file_accurate'));
             return redirect()->route('items.index')->with('success', 'Ribuan data Master Barang dari Accurate berhasil di-import dan disinkronisasi!');
             
         } catch (\Exception $e) {
-            // Error jika format Excel tidak sesuai
             return redirect()->back()->with('error', 'Gagal melakukan import. Pastikan format file sesuai. Error: ' . $e->getMessage());
         }
     }
