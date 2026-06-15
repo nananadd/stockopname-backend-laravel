@@ -74,58 +74,76 @@
     </div>
 </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const ctxTrend = document.getElementById('trendChart').getContext('2d');
-            new Chart(ctxTrend, {
-                type: 'line',
-                data: {
-                    labels: {!! json_encode($trendDates) !!},
-                    datasets: [{
-                        label: 'Jumlah Cycle Count Harian',
-                        data: {!! json_encode($trendData) !!},
-                        borderColor: '#f31a6b',
-                        backgroundColor: 'rgba(243, 26, 107, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: '#111111',
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const ctxTrend = document.getElementById('trendChart').getContext('2d');
+
+    new Chart(ctxTrend, {
+        type: 'line',
+        data: {
+            labels: @json($trendDates),
+            datasets: [{
+                label: 'Jumlah Cycle Count Harian',
+                data: @json($trendData),
+                borderColor: '#f31a6b',
+                backgroundColor: 'rgba(243, 26, 107, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#111111',
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
                     }
                 }
-            });
+            }
+        }
+    });
 
-            const ctxVariance = document.getElementById('varianceChart').getContext('2d');
-            new Chart(ctxVariance, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Stok Sesuai', 'Stok Selisih (Kurang/Lebih)'],
-                    datasets: [{
-                        data: [{{ $varianceSesuai }}, {{ $varianceSelisih }}],
-                        backgroundColor: [
-                            '#111111',
-                            '#f31a6b'
-                        ],
-                        borderWidth: 0,
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    cutout: '70%',
-                    plugins: {
-                        legend: { position: 'bottom' }
-                    }
+    const ctxVariance = document.getElementById('varianceChart').getContext('2d');
+
+    new Chart(ctxVariance, {
+        type: 'doughnut',
+        data: {
+            labels: ['Stok Sesuai', 'Stok Selisih (Kurang/Lebih)'],
+            datasets: [{
+                data: [
+                    {{ $varianceSesuai ?? 0 }},
+                    {{ $varianceSelisih ?? 0 }}
+                ],
+                backgroundColor: [
+                    '#111111',
+                    '#f31a6b'
+                ],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '70%',
+            plugins: {
+                legend: {
+                    position: 'bottom'
                 }
-            });
-        });
-    </script>
+            }
+        }
+    });
+
+});
+</script>
 @endsection
