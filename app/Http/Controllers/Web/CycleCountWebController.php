@@ -198,19 +198,12 @@ class CycleCountWebController extends Controller
             $item = $detail->item;
 
             if ($item) {
-                if ($detail->physical_stock == 0) {
-                    // Staf lapor kosong, hapus baris di rak tersebut
-                    DB::table('item_rack')
-                        ->where('item_id', $item->id)
-                        ->where('rack_id', $cycle->rack_id)
-                        ->delete();
-                } else {
-                    // Staf lapor ada isinya (bisa update jumlah, atau barang nyasar baru masuk)
-                    DB::table('item_rack')->updateOrInsert(
-                        ['item_id' => $item->id, 'rack_id' => $cycle->rack_id],
-                        ['stock_at_location' => $detail->physical_stock, 'updated_at' => now()]
-                    );
-                }
+                // tidak ada fungsi delete(). walau fisik 0, 
+                // data tetap disimpan di database (hanya update angka menjadi 0)
+                DB::table('item_rack')->updateOrInsert(
+                    ['item_id' => $item->id, 'rack_id' => $cycle->rack_id],
+                    ['stock_at_location' => $detail->physical_stock, 'updated_at' => now()]
+                );
 
                 // Kalkulasi Ulang Master System Stock Berdasarkan Penjumlahan di Rak (SUM)
                 $totalRealStock = DB::table('item_rack')
@@ -220,6 +213,12 @@ class CycleCountWebController extends Controller
                 $item->update(['system_stock' => $totalRealStock]);
             }
         }
+
+        // pembersihan defensif, hapus sisa sisa entri item_rack kalo stock = 0
+        DB::table('item_rack')
+        ->where('rack_id', $cycle->rack_id)
+        ->where('stock_at_location', 0)
+        ->delete();
 
         // buka lock
         if ($cycle->rack) {
@@ -288,8 +287,12 @@ class CycleCountWebController extends Controller
         // Kumpulkan ID barang yang SAAT INI SUDAH ADA di dalam tabel laporan
         $existingItemIds = $cycle->details()->pluck('item_id')->toArray();
 
-        // Cari barang di Rak tersebut yang BELUM MASUK ke daftar (membandingkan ID)
-        $newItems = $rack->items()->whereNotIn('items.id', $existingItemIds)->get();
+        // Cari barang di Rak tersebut yang BELUM MASUK ke daftar
+        // ditambah filter wherePivot agar barang yang stoknya 0 tidak ikut masuk
+        $newItems = $rack->items()
+                         ->wherePivot('stock_at_location', '>', 0)
+                         ->whereNotIn('items.id', $existingItemIds)
+                         ->get();
 
         $syncedCount = 0;
 

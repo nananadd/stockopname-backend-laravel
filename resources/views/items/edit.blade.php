@@ -5,7 +5,7 @@
     <div class="col-md-8">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="fw-bold text-dark">
-                <i class="fas fa-plus-circle text-primary me-2"></i>Tambah Barang Baru
+                <i class="fas fa-plus-circle text-primary me-2"></i>Edit Barang Baru
             </h3>
             <a href="{{ route('items.index') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Kembali

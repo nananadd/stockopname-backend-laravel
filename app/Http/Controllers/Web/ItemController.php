@@ -13,8 +13,11 @@ class ItemController extends Controller
 {
     public function index(Request $request)
     {
-        // UBAH 'rack' menjadi 'racks' sesuai nama fungsi di Model
-        $query = Item::with('racks'); 
+        $query = Item::with(['racks' => function($q) {
+            $q->wherePivot('stock_at_location', '>', 0);
+        }]);
+
+        $query->where('system_stock', '>', 0);
 
         // search berdasarkan Nama Barang atau SKU
         if ($request->filled('search')) {
@@ -27,9 +30,15 @@ class ItemController extends Controller
 
         // filter barang berdasarkan Lokasi Rak tertentu
         if ($request->filled('rack_id')) {
+            // whereHas: mastikan item ini punya stok fisik di rak yang dipilih
             $query->whereHas('racks', function($q) use ($request) {
-                $q->where('racks.id', $request->rack_id); 
-            });
+                $q->where('racks.id', $request->rack_id)
+                  ->where('item_rack.stock_at_location', '>', 0);
+            })->with(['racks' => function($q) use ($request) {
+                // Override relasi layar: Pastikan yang di-load ke layar cuma rak yg dipilih
+                $q->where('racks.id', $request->rack_id)
+                  ->wherePivot('stock_at_location', '>', 0);
+            }]);
         }
 
         if ($request->filled('unit')) {
